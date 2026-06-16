@@ -1,0 +1,64 @@
+{
+  "name": "Calculateur Couverture Couvr'Toit",
+  "short_name": "Calc Couverture",
+  "description": "Gestion complète des quantitatifs de toiture sur site et au bureau",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#E63946",
+  "categories": ["business", "productivity"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192'/><text x='50%' y='50%' font-size='24' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'>Calculateur</text><text x='50%' y='60%' font-size='12' fill='white' text-anchor='middle' dominant-baseline='middle'>Couverture</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23E63946' width='512' height='512'/><text x='50%' y='50%' font-size='64' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'>CALC</text><text x='50%' y='65%' font-size='32' fill='white' text-anchor='middle' dominant-baseline='middle'>Toiture</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192' rx='45'/><text x='50%' y='50%' font-size='80' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'>C</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23E63946' width='512' height='512' rx='110'/><text x='50%' y='50%' font-size='200' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'>C</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Brouillon",
+      "short_name": "Brouillon",
+      "description": "Accès rapide aux notes de chantier",
+      "url": "./index.html?page=brouillon",
+      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192'/><text x='50%' y='50%' font-size='60' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'>📝</text></svg>", "sizes": "192x192", "type": "image/svg+xml"}]
+    },
+    {
+      "name": "Calcul Avancé",
+      "short_name": "Calcul",
+      "description": "Accès rapide aux calculs de quantitatifs",
+      "url": "./index.html?page=calcul",
+      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192'/><text x='50%' y='50%' font-size='60' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'>🔢</text></svg>", "sizes": "192x192", "type": "image/svg+xml"}]
+    },
+    {
+      "name": "Matériel",
+      "short_name": "Matériel",
+      "description": "Commande de matériel",
+      "url": "./index.html?page=materiel",
+      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192'/><text x='50%' y='50%' font-size='60' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'>📦</text></svg>", "sizes": "192x192", "type": "image/svg+xml"}]
+    }
+  ],
+  "prefer_related_applications": false
+}
