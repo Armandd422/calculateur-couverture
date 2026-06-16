@@ -1,6 +1,6 @@
 {
   "name": "Calculateur Couverture Couvr'Toit",
-  "short_name": "Calc Couverture",
+  "short_name": "Calc Toiture",
   "description": "Gestion complète des quantitatifs de toiture sur site et au bureau",
   "start_url": "./index.html",
   "scope": "./",
@@ -11,13 +11,13 @@
   "categories": ["business", "productivity"],
   "screenshots": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192'/><text x='50%' y='50%' font-size='24' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'>Calculateur</text><text x='50%' y='60%' font-size='12' fill='white' text-anchor='middle' dominant-baseline='middle'>Couverture</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192'/><path d='M96 40 L140 100 L150 100 L150 160 L42 160 L42 100 L52 100 Z' fill='white'/><rect x='60' y='115' width='20' height='30' fill='%23E63946'/><rect x='112' y='115' width='20' height='30' fill='%23E63946'/></svg>",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23E63946' width='512' height='512'/><text x='50%' y='50%' font-size='64' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'>CALC</text><text x='50%' y='65%' font-size='32' fill='white' text-anchor='middle' dominant-baseline='middle'>Toiture</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23E63946' width='512' height='512'/><path d='M256 100 L360 280 L400 280 L400 420 L112 420 L112 280 L152 280 Z' fill='white'/><rect x='160' y='310' width='60' height='90' fill='%23E63946'/><rect x='292' y='310' width='60' height='90' fill='%23E63946'/></svg>",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any"
@@ -25,13 +25,13 @@
   ],
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192' rx='45'/><text x='50%' y='50%' font-size='80' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'>C</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192' rx='45'/><path d='M96 40 L140 100 L150 100 L150 160 L42 160 L42 100 L52 100 Z' fill='white'/><rect x='60' y='115' width='20' height='30' fill='%23E63946'/><rect x='112' y='115' width='20' height='30' fill='%23E63946'/></svg>",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23E63946' width='512' height='512' rx='110'/><text x='50%' y='50%' font-size='200' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'>C</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23E63946' width='512' height='512' rx='110'/><path d='M256 100 L360 280 L400 280 L400 420 L112 420 L112 280 L152 280 Z' fill='white'/><rect x='160' y='310' width='60' height='90' fill='%23E63946'/><rect x='112' y='115' width='20' height='30' fill='%23E63946'/></svg>",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
