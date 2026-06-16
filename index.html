@@ -6,15 +6,9 @@
   <meta name="theme-color" content="#E63946">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Calc Couverture">
-  <meta name="application-name" content="Calculateur Couverture">
-  <meta name="msapplication-TileColor" content="#E63946">
-  <meta name="description" content="Application de gestion de quantitatifs de toiture - Couvr'Toit">
+  <meta name="apple-mobile-web-app-title" content="Calc Toiture">
   
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192' rx='45'/><text x='50%' y='50%' font-size='80' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'>C</text></svg>">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23E63946' width='180' height='180' rx='40'/><text x='90' y='90' font-size='80' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'>C</text></svg>">
-
   <title>Calculateur Couverture - Couvr'Toit</title>
 
   <style>
@@ -28,7 +22,6 @@
     :root {
       --primary: #E63946;
       --primary-dark: #A4161A;
-      --primary-light: #F5AAAD;
       --accent: #1D3557;
       --bg: #F5F5F5;
       --card: #FFFFFF;
@@ -36,7 +29,6 @@
       --text: #333333;
       --text-light: #666666;
       --success: #10B981;
-      --warning: #F59E0B;
       --error: #EF4444;
     }
 
@@ -52,7 +44,6 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-      height: 100dvh;
     }
 
     /* HEADER */
@@ -65,15 +56,6 @@
       gap: 12px;
       flex-shrink: 0;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .logo-container {
-      height: 40px;
-      display: flex;
-      align-items: center;
     }
 
     .logo-img {
@@ -90,7 +72,6 @@
       font-weight: bold;
       color: var(--primary);
       margin: 0;
-      line-height: 1.2;
     }
 
     .header-text p {
@@ -100,32 +81,58 @@
     }
 
     .sync-status {
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       font-size: 14px;
       cursor: help;
     }
 
-    .sync-status.synced::before {
-      content: '✓';
-      color: var(--success);
+    /* CHANTIER SELECTOR */
+    .chantier-selector {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+      overflow-y: auto;
+      max-height: 80px;
     }
 
-    .sync-status.syncing::before {
-      content: '⟳';
-      animation: spin 1s linear infinite;
+    .chantier-btn {
+      padding: 6px 12px;
+      border: 2px solid var(--border);
+      background: white;
+      color: var(--text);
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      font-weight: bold;
     }
 
-    .sync-status.offline::before {
-      content: '⊘';
-      color: var(--warning);
+    .chantier-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .chantier-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .btn-new-chantier {
+      padding: 6px 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      flex-shrink: 0;
     }
 
     /* TABS */
@@ -137,8 +144,6 @@
       padding: 0;
       overflow-x: auto;
       flex-shrink: 0;
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
     }
 
     .tab-btn {
@@ -171,18 +176,13 @@
     .content-wrapper {
       flex: 1;
       overflow-y: auto;
-      overflow-x: hidden;
+      padding: 12px;
       -webkit-overflow-scrolling: touch;
-      display: flex;
-      scroll-behavior: smooth;
     }
 
     .page {
       display: none;
-      width: 100%;
-      padding: 12px;
       min-height: 100%;
-      flex-shrink: 0;
     }
 
     .page.active {
@@ -253,7 +253,6 @@
     textarea {
       resize: vertical;
       min-height: 80px;
-      font-family: inherit;
     }
 
     /* GRID */
@@ -264,10 +263,6 @@
 
     .grid-2 {
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    }
-
-    .grid-3 {
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     }
 
     /* TABLE */
@@ -331,8 +326,6 @@
       transition: all 0.2s;
       text-transform: uppercase;
       letter-spacing: 0.3px;
-      -webkit-user-select: none;
-      user-select: none;
     }
 
     .btn-primary {
@@ -349,47 +342,16 @@
       color: white;
     }
 
-    .btn-small {
-      padding: 4px 6px;
-      font-size: 10px;
-    }
-
     .btn-danger {
       background: var(--error);
       color: white;
-      padding: 4px 6px;
+      padding: 4px 8px;
       font-size: 10px;
     }
 
-    /* FOOTER */
-    .page-footer {
-      display: flex;
-      gap: 8px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
-
-    /* UTILITIES */
-    .info-box {
-      background: var(--bg);
-      padding: 8px;
-      border-radius: 4px;
-      border-left: 3px solid var(--primary);
-      font-size: 11px;
-      margin-bottom: 10px;
-      line-height: 1.4;
-    }
-
-    .section-subtitle {
-      font-size: 11px;
-      font-weight: bold;
-      color: var(--accent);
-      margin: 10px 0 8px 0;
-      text-transform: uppercase;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
+    .btn-small {
+      padding: 4px 8px;
+      font-size: 10px;
     }
 
     .add-row-btn {
@@ -411,87 +373,67 @@
       color: white;
     }
 
-    .result-box {
-      background: var(--primary);
-      color: white;
-      padding: 12px;
-      border-radius: 6px;
-      text-align: center;
-      margin-top: 10px;
+    .info-box {
+      background: var(--bg);
+      padding: 8px;
+      border-radius: 4px;
+      border-left: 3px solid var(--primary);
+      font-size: 11px;
+      margin-bottom: 10px;
+      line-height: 1.4;
     }
 
-    .result-box .label {
-      font-size: 10px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-      opacity: 0.9;
-    }
-
-    .result-box .value {
-      font-size: 28px;
+    .section-subtitle {
+      font-size: 11px;
       font-weight: bold;
+      color: var(--accent);
+      margin: 10px 0 8px 0;
+      text-transform: uppercase;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .install-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 16px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: white;
-      border: none;
+    .modal {
       display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
       z-index: 1000;
-      -webkit-user-select: none;
-      user-select: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
     }
 
-    .install-btn.show {
+    .modal.show {
       display: flex;
     }
 
-    @media (max-height: 600px) {
-      header {
-        padding: 8px 12px;
-      }
-
-      .tab-btn {
-        padding: 8px 10px;
-        font-size: 10px;
-      }
-
-      .page {
-        padding: 10px;
-      }
-
-      .card {
-        padding: 12px;
-        margin-bottom: 10px;
-      }
+    .modal-content {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    /* Notch support */
-    @supports (padding: max(0px)) {
-      header {
-        padding-left: max(16px, env(safe-area-inset-left));
-        padding-right: max(16px, env(safe-area-inset-right));
-        padding-top: max(10px, env(safe-area-inset-top));
-      }
+    .modal-content h2 {
+      margin-bottom: 16px;
+      color: var(--accent);
+    }
 
-      .page {
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    @supports (padding: max(0px)) {
+      .content-wrapper {
         padding-left: max(12px, env(safe-area-inset-left));
         padding-right: max(12px, env(safe-area-inset-right));
-        padding-bottom: max(12px, env(safe-area-inset-bottom));
-      }
-
-      .page-footer {
         padding-bottom: max(12px, env(safe-area-inset-bottom));
       }
     }
@@ -501,15 +443,18 @@
   <div class="container">
     <!-- HEADER -->
     <header>
-      <div class="logo-container">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFq0lEQVR4nO2Y/0tTYRDH/+MnfmAxqLCLWlGJH5DEQjL2oU6f/OhDEJpxQCxISyg0K6Uo0ixSLLLS5S/bOl3mzHa5m3uXe/e59zlw7sE59+PZ3fd2ZnafBQDI5XKFSqWSq1QqhUql4iKRSH5+fp6fn5+Xn5+Pz8/P4/l8Xi4SiRRKpVJBl8vl4hy5XI7Pz89jzWYziMViwvp8Po7H41Eul5Ozs7M4ER6Px2MYhrFYrMDb25twOBykz+fjYrEYFovFhM1mQ3p7O5GZmUmlpKSQOTk5JDo6mqysrBCZmZlkcXExSUtLIyMjI4hJScmlS5eQSCRChoeHRXT09HQkHo8LQ0NDyNnZGWL8/PzIwoQ4PT3F9vZ2QltbG5mfnycmJydJZmYmqaiouET6+/vJ/PwzSU5OJiUlJWRubg5paWlBzGQyIZlMRkZGRhDweDxIcXExWVhYIDk5OWT50CHy7ORkws7Ojqyvr1MyPz+P1NXVkfr6etLQ0EDMZjNycXGBpKam0qm5ubmRb9++0fmBgQHy+fNnUlBQQMbHx8nS0hJJSUkhRUVFpKGhAZmbmyOZmZmks7OTHj+73U68Xm+HkampKcrn8yWkpqaG7O7upvNZWVlkZ2eH/PnzR0JDQ0lJSQni8XjQ1dWFvLi4kBoYGBCXl5cJBwcHcu3aNZKUlES+fPlCYmNjSUJCAvm6sJDw9fWlzzNVVVVl8pnwWpQtpKCggC6QyWTI/Pz82jImEgqFgtTV1dFGJxIJXZNSSZkiHECBWCwm3d3dp+pM7q8pAwMD9AazWCzU4PDwMAqFAgyGgyBw9cpVhMfj0TNyc3NRWlpKBu7EULHUSAz+2NsbNDU1ZQfQ9u3bFbW1tWR7e5uOXl1dRWdnJ1kP5K0/kfHycuLhw4f02A/j4+Oi7u5uMqI47kB0dHQEn8+Hzs5O9Pf3I/+Bv6qjLi8vxaampgm1Wk1HGxoayKlxOVNQUIDh4WFEX1+fWIZhSEZGBqmoqFCQqakpYrFYxNLTU8m+fr4YhmOYnxBWj3BnZyc5Ojqi0p6VlUX27duHZGdnAz4+3nR8dXWVXF9cJG5ubviRZFwuV/+kiJVKBQlxCAQCRFBQEElJSSG5ubmKJzTZBq1WG8K+wGDfMBwdHcnJyQlSU1NDQkNDidfrlbDdXk8d4+PjeKaJOKxWqxf/m8LvfyCJI6hUqsIXL16gp6eHKJVKVFRUoLOzE1VVVUhPT8fw8DACAwNRXV2N6elpYjKZsLS0hPb2dnR1dVG4h4eHo7q6mtV5kTCAi4sLfHx8QJIkqKmpQVZWFvb29qi+Dw4OQi6XI5L10dSJiQm+YfC3Z2zfvl1m3hl6+xpvvFPRIhQK6Sh7e3t+Xz8Tr2Wm9RCSwvCFqqLrxNMXcILN5XC1u9X9mLdlr2YF7bOiUO97N5EflF3nT3OaVOuUqaHvA8yDxDQmlk1aXQqhAhS7g4OaTwVLgNJBEE7DIHF6MvF96e9wS5f8ORn4VsLvFUt8rEjTBvLFzLJoNHMKPTuJ3Q4VdXWzvOYCjVcgS1xKqQxeLfwf7c5MxdNMqGHVPAd91SDwYKfHJCKPJNMpzYx5SPQVWYsN4y4LPZ+FiUZZxMXMM6Qv2EYSKhAIWPKJL9g/CJrqoXltPY8K5C6fWo/uFc8iYmUi0FJNRpQqv1cGYh3wbYTKCfY1xNq+2Pv1QY0Gp0N4XoHfTJxbKPJ6qVV+JwdyDvDR3oN3CaXXS0sYvpaMdHqGV1AeLgfKs12Y7c2Yex0zy2Ul3V8qYK/FP3spMfTJAkRFITUXzfKQTk+E+aHXrYzHhvGl9wq5rxPmZU7XqAsTR5gNpBJ9uNpBJ9gG5gP8A/AET3UNVGjzFxYBgF5+Pnz8/D2+gPYvIZbUV74fPb1PZAOS3KqvQkAEQAaEQAA" alt="Couvr'Toit Logo" class="logo-img">
-      </div>
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFq0lEQVR4nO2Y/0tTYRDH/+MnfmAxqLCLWlGJH5DEQjL2oU6f/OhDEJpxQCxISyg0K6Uo0ixSLLLS5S/bOl3mzHa5m3uXe/e59zlw7sE59+PZ3fd2ZnafBQDI5XKFSqWSq1QqhUql4iKRSH5+fp6fn5+Xn5+Pz8/P4/l8Xi4SiRRKpVJBl8vl4hy5XI7Pz89jzWYziMViwvp8Po7H41Eul5Ozs7M4ER6Px2MYhrFYrMDb25twOBykz+fjYrEYFovFhM1mQ3p7O5GZmUmlpKSQOTk5JDo6mqysrBCZmZlkcXExSUtLIyMjI4hJScmlS5eQSCRChoeHRXT09HQkHo8LQ0NDyNnZGWL8/PzIwoQ4PT3F9vZ2QltbG5mfnycmJydJZmYmqaiouET6+/vJ/PwzSU5OJiUlJWRubg5paWlBzGQyIZlMRkZGRhDweDxIcXExWVhYIDk5OWT50CHy7ORkws7Ojqyvr1MyPz+P1NXVkfr6etLQ0EDMZjNycXGBpKam0qm5ubmRb9++0fmBgQHy+fNnUlBQQMbHx8nS0hJJSUkhRUVFpKGhAZmbmyOZmZmks7OTHj+73U68Xm+HkampKcrn8yWkpqaG7O7upvNZWVlkZ2eH/PnzR0JDQ0lJSQni8XjQ1dWFvLi4kBoYGBCXl5cJBwcHcu3aNZKUlES+fPlCYmNjSUJCAvm6sJDw9fWlzzNVVVVl8pnwWpQtpKCggC6QyWTI/Pz82jImEgqFgtTV1dFGJxIJXZNSSZkiHECBWCwm3d3dp+pM7q8pAwMD9AazWCzU4PDwMAqFAgyGgyBw9cpVhMfj0TNyc3NRWlpKBu7EULHUSAz+2NsbNDU1ZQfQ9u3bFbW1tWR7e5uOXl1dRWdnJ1kP5K0/kfHycuLhw4f02A/j4+Oi7u5uMqI47kB0dHQEn8+Hzs5O9Pf3I/+Bv6qjLi8vxaampgm1Wk1HGxoayKlxOVNQUIDh4WFEX1+fWIZhSEZGBqmoqFCQqakpYrFYxNLTU8m+fr4YhmOYnxBWj3BnZyc5Ojqi0p6VlUX27duHZGdnAz4+3nR8dXWVXF9cJG5ubviRZFwuV/+kiJVKBQlxCAQCRFBQEElJSSG5ubmKJzTZBq1WG8K+wGDfMBwdHcnJyQlSU1NDQkNDidfrlbDdXk8d4+PjeKaJOKxWqxf/m8LvfyCJI6hUqsIXL16gp6eHKJVKVFRUoLOzE1VVVUhPT8fw8DACAwNRXV2N6elpYjKZsLS0hPb2dnR1dVG4h4eHo7q6mtV5kTCAi4sLfHx8QJIkqKmpQVZWFvb29qi+Dw4OQi6XI5L10dSJiQm+YfC3Z2zfvl1m3hl6+xpvvFPRIhQK6Sh7e3t+Xz8Tr2Wm9RCSwvCFqqLrxNMXcILN5XC1u9X9mLdlr2YF7bOiUO97N5EflF3nT3OaVOuUqaHvA8yDxDQmlk1aXQqhAhS7g4OaTwVLgNJBEE7DIHF6MvF96e9wS5f8ORn4VsLvFUt8rEjTBvLFzLJoNHMKPTuJ3Q4VdXWzvOYCjVcgS1xKqQxeLfwf7c5MxdNMqGHVPAd91SDwYKfHJCKPJNMpzYx5SPQVWYsN4y4LPZ+FiUZZxMXMM6Qv2EYSKhAIWPKJL9g/CJrqoXltPY8K5C6fWo/uFc8iYmUi0FJNRpQqv1cGYh3wbYTKCfY1xNq+2Pv1QY0Gp0N4XoHfTJxbKPJ6qVV+JwdyDvDR3oN3CaXXS0sYvpaMdHqGV1AeLgfKs12Y7c2Yex0zy2Ul3V8qYK/FP3spMfTJAkRFITUXzfKQTk+E+aHXrYzHhvGl9wq5rxPmZU7XqAsTR5gNpBJ9uNpBJ9gG5gP8A/AET3UNVGjzFxYBgF5+Pnz8/D2+gPYvIZbUV74fPb1PZAOS3KqvQkAEQAaEQAA" alt="Couvr'Toit" class="logo-img">
       <div class="header-text">
-        <h1>CALC COUVERTURE</h1>
-        <p>Couvr'Toit - Quantitatifs</p>
+        <h1>CALC TOITURE</h1>
+        <p>Couvr'Toit - Gestion chantiers</p>
       </div>
-      <div class="sync-status synced" title="Synchronisé"></div>
+      <div class="sync-status" id="syncStatus" title="Synchronisation">✓</div>
     </header>
+
+    <!-- CHANTIER SELECTOR -->
+    <div class="chantier-selector" id="chantierSelector">
+      <button class="btn-new-chantier" onclick="openNewChantierModal()">+ Nouveau</button>
+    </div>
 
     <!-- TABS -->
     <div class="tabs-bar">
@@ -522,57 +467,33 @@
     <!-- CONTENT -->
     <div class="content-wrapper">
       
-      <!-- PAGE 1: BROUILLON -->
+      <!-- BROUILLON -->
       <div class="page active" id="brouillon">
         <div class="card">
-          <div class="card-title">📝 BROUILLON CHANTIER</div>
-          
-          <div class="grid grid-2">
-            <div class="form-group">
-              <label>Chantier</label>
-              <input type="text" id="nom_chantier" placeholder="Ex: Rue de la Paix">
-            </div>
-            <div class="form-group">
-              <label>Date</label>
-              <input type="date" id="date_chantier">
-            </div>
-          </div>
-
+          <div class="card-title">📝 BROUILLON</div>
           <div class="form-group">
-            <label>Notes</label>
-            <textarea id="notes_brouillon" placeholder="Observations rapides..."></textarea>
+            <label>Observations rapides</label>
+            <textarea id="brouillon_notes" placeholder="Notes du chantier..."></textarea>
           </div>
-
-          <div class="form-group">
-            <label>Client</label>
-            <input type="text" id="client_info" placeholder="Téléphone, email...">
-          </div>
-
-          <div class="page-footer">
-            <button class="btn btn-primary" onclick="sauvegarderBrouillon()">💾 Sauvegarder</button>
-            <button class="btn btn-secondary" onclick="effacerBrouillon()">🗑️ Effacer</button>
-          </div>
+          <button class="btn btn-primary btn-small" onclick="saveBrouillon()">💾 Sauvegarder</button>
         </div>
       </div>
 
-      <!-- PAGE 2: MÉTRÉ SUR SITE -->
+      <!-- MÉTRÉ -->
       <div class="page" id="metre">
         <div class="card">
-          <div class="card-title">📐 CALCULS GÉOMÉTRIQUES</div>
-          <div class="info-box">Calculez les surfaces sur site</div>
-
+          <div class="card-title">📐 MÉTRÉ SUR SITE</div>
+          <div class="info-box">Calculez les surfaces rapidement</div>
+          
           <div class="form-group">
             <label>Forme</label>
             <select id="forme" onchange="changerForme()">
               <option value="rectangle">Rectangle</option>
               <option value="triangle">Triangle</option>
               <option value="trapeze">Trapèze</option>
-              <option value="losange">Losange</option>
-              <option value="cercle">Cercle</option>
             </select>
           </div>
 
-          <!-- Rectangle -->
           <div id="form_rectangle">
             <div class="grid grid-2">
               <div class="form-group">
@@ -586,7 +507,6 @@
             </div>
           </div>
 
-          <!-- Triangle -->
           <div id="form_triangle" style="display:none;">
             <div class="grid grid-2">
               <div class="form-group">
@@ -600,9 +520,8 @@
             </div>
           </div>
 
-          <!-- Trapèze -->
           <div id="form_trapeze" style="display:none;">
-            <div class="grid grid-3">
+            <div class="grid grid-2">
               <div class="form-group">
                 <label>Grande base (m)</label>
                 <input type="number" id="trap_b1" step="0.01" value="10" onchange="calculerSurface()">
@@ -618,154 +537,88 @@
             </div>
           </div>
 
-          <!-- Losange -->
-          <div id="form_losange" style="display:none;">
-            <div class="grid grid-2">
-              <div class="form-group">
-                <label>Diagonale 1 (m)</label>
-                <input type="number" id="los_d1" step="0.01" value="8" onchange="calculerSurface()">
-              </div>
-              <div class="form-group">
-                <label>Diagonale 2 (m)</label>
-                <input type="number" id="los_d2" step="0.01" value="6" onchange="calculerSurface()">
-              </div>
-            </div>
-          </div>
-
-          <!-- Cercle -->
-          <div id="form_cercle" style="display:none;">
-            <div class="form-group">
-              <label>Rayon (m)</label>
-              <input type="number" id="circ_r" step="0.01" value="5" onchange="calculerSurface()">
-            </div>
-          </div>
-
-          <div class="result-box">
-            <div class="label">Surface</div>
-            <div class="value" id="result_surface">0.00 m²</div>
+          <div style="background: var(--primary); color: white; padding: 16px; border-radius: 6px; text-align: center; margin-top: 12px;">
+            <div style="font-size: 11px; text-transform: uppercase; margin-bottom: 8px;">Surface</div>
+            <div id="result_surface" style="font-size: 28px; font-weight: bold;">0.00 m²</div>
           </div>
         </div>
       </div>
 
-      <!-- PAGE 3: CALCUL AVANCÉ -->
+      <!-- CALCUL -->
       <div class="page" id="calcul">
         <div class="card">
-          <div class="card-title">INFOS CHANTIER</div>
-          <div class="grid grid-2">
-            <div class="form-group">
-              <label>Localisation</label>
-              <input type="text" id="loc_bat" placeholder="Toit principal...">
-            </div>
-            <div class="form-group">
-              <label>Surface (m²)</label>
-              <input type="number" id="surface_tot" step="0.01">
-            </div>
-          </div>
-        </div>
-
-        <!-- TUILE -->
-        <div class="card">
-          <div class="card-title">TUILE</div>
+          <div class="card-title">🔢 CALCUL AVANCÉ</div>
+          
+          <div class="section-subtitle">Tuile</div>
           <div class="table-container">
             <table id="table_tuile">
               <thead>
                 <tr>
-                  <th>Ouvrage</th>
-                  <th>Unité</th>
-                  <th>Qté</th>
-                  <th>Chute</th>
-                  <th>Total</th>
+                  <th style="width: 35%;">Ouvrage</th>
+                  <th style="width: 15%;">Unité</th>
+                  <th style="width: 15%;">Qté</th>
+                  <th style="width: 15%;">Chute</th>
+                  <th style="width: 20%;">Total</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td colspan="5" style="padding:6px; color:#999; font-size:10px;"><strong>COUVERTURE</strong></td></tr>
                 <tr><td>Tuile</td><td>M²</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.05"></td><td>5%</td><td class="total">0</td></tr>
-                <tr><td colspan="5" style="padding:6px; color:#999; font-size:10px;"><strong>ARÊTES</strong></td></tr>
                 <tr><td>Faîtage</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.05"></td><td>5%</td><td class="total">0</td></tr>
                 <tr><td>Noue</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.10"></td><td>10%</td><td class="total">0</td></tr>
                 <tr><td>Solin</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.08"></td><td>8%</td><td class="total">0</td></tr>
-                <tr><td colspan="5" style="padding:6px; color:#999; font-size:10px;"><strong>DÉBORDS</strong></td></tr>
                 <tr><td>Rive</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.05"></td><td>5%</td><td class="total">0</td></tr>
                 <tr><td>Gouttière</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.05"></td><td>5%</td><td class="total">0</td></tr>
-                <tr><td>Fenêtre toit</td><td>U</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0"></td><td>0%</td><td class="total">0</td></tr>
               </tbody>
             </table>
           </div>
           <button class="add-row-btn" onclick="ajouterLigne('table_tuile')">+ Ajouter</button>
-        </div>
 
-        <!-- ZINC -->
-        <div class="card">
-          <div class="card-title">ZINC</div>
+          <div class="section-subtitle" style="margin-top: 14px;">Zinc</div>
           <div class="table-container">
             <table id="table_zinc">
               <thead>
                 <tr>
-                  <th>Ouvrage</th>
-                  <th>Unité</th>
-                  <th>Qté</th>
-                  <th>Chute</th>
-                  <th>Total</th>
+                  <th style="width: 35%;">Ouvrage</th>
+                  <th style="width: 15%;">Unité</th>
+                  <th style="width: 15%;">Qté</th>
+                  <th style="width: 15%;">Chute</th>
+                  <th style="width: 20%;">Total</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td colspan="5" style="padding:6px; color:#999; font-size:10px;"><strong>COUVERTURE</strong></td></tr>
                 <tr><td>Zinc</td><td>M²</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.08"></td><td>8%</td><td class="total">0</td></tr>
-                <tr><td colspan="5" style="padding:6px; color:#999; font-size:10px;"><strong>ARÊTES & SOLINS</strong></td></tr>
                 <tr><td>Noue</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.12"></td><td>12%</td><td class="total">0</td></tr>
                 <tr><td>Solin</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.10"></td><td>10%</td><td class="total">0</td></tr>
-                <tr><td>Habillage cheminée</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.10"></td><td>10%</td><td class="total">0</td></tr>
-                <tr><td colspan="5" style="padding:6px; color:#999; font-size:10px;"><strong>DÉBORDS</strong></td></tr>
-                <tr><td>Rive</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.08"></td><td>8%</td><td class="total">0</td></tr>
-                <tr><td>Gouttière</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.08"></td><td>8%</td><td class="total">0</td></tr>
               </tbody>
             </table>
           </div>
           <button class="add-row-btn" onclick="ajouterLigne('table_zinc')">+ Ajouter</button>
-        </div>
 
-        <!-- BAC ACIER -->
-        <div class="card">
-          <div class="card-title">BAC ACIER</div>
+          <div class="section-subtitle" style="margin-top: 14px;">Bac Acier</div>
           <div class="table-container">
             <table id="table_acier">
               <thead>
                 <tr>
-                  <th>Ouvrage</th>
-                  <th>Unité</th>
-                  <th>Qté</th>
-                  <th>Chute</th>
-                  <th>Total</th>
+                  <th style="width: 35%;">Ouvrage</th>
+                  <th style="width: 15%;">Unité</th>
+                  <th style="width: 15%;">Qté</th>
+                  <th style="width: 15%;">Chute</th>
+                  <th style="width: 20%;">Total</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td colspan="5" style="padding:6px; color:#999; font-size:10px;"><strong>COUVERTURE</strong></td></tr>
                 <tr><td>Bac acier</td><td>M²</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.10"></td><td>10%</td><td class="total">0</td></tr>
-                <tr><td colspan="5" style="padding:6px; color:#999; font-size:10px;"><strong>ÉTANCHÉITÉ</strong></td></tr>
                 <tr><td>Membrane</td><td>M²</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.05"></td><td>5%</td><td class="total">0</td></tr>
-                <tr><td colspan="5" style="padding:6px; color:#999; font-size:10px;"><strong>ARÊTES & SOLINS</strong></td></tr>
-                <tr><td>Faîtage</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.05"></td><td>5%</td><td class="total">0</td></tr>
-                <tr><td>Noue</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.10"></td><td>10%</td><td class="total">0</td></tr>
-                <tr><td>Solin / Habillage</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.08"></td><td>8%</td><td class="total">0</td></tr>
-                <tr><td colspan="5" style="padding:6px; color:#999; font-size:10px;"><strong>DÉBORDS</strong></td></tr>
-                <tr><td>Rive / Tôle rive</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.08"></td><td>8%</td><td class="total">0</td></tr>
-                <tr><td>Habillage latéral</td><td>M²</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.10"></td><td>10%</td><td class="total">0</td></tr>
               </tbody>
             </table>
           </div>
           <button class="add-row-btn" onclick="ajouterLigne('table_acier')">+ Ajouter</button>
-        </div>
 
-        <div class="card">
-          <div class="card-title">📝 NOTES</div>
-          <textarea id="notes_calcul" placeholder="Observations..."></textarea>
-          <div class="page-footer">
-            <button class="btn btn-primary" onclick="sauvegarderCalcul()">💾 Sauvegarder</button>
-          </div>
+          <button class="btn btn-primary btn-small" style="margin-top: 12px;" onclick="saveCalcul()">💾 Sauvegarder</button>
         </div>
       </div>
 
-      <!-- PAGE 4: MATÉRIEL -->
+      <!-- MATÉRIEL -->
       <div class="page" id="materiel">
         <div class="card">
           <div class="card-title">📦 MATÉRIEL À COMMANDER</div>
@@ -773,18 +626,18 @@
             <table id="table_materiel">
               <thead>
                 <tr>
-                  <th>Article</th>
-                  <th>Unité</th>
-                  <th>Qté</th>
-                  <th>Fournisseur</th>
-                  <th></th>
+                  <th style="width: 40%;">Article</th>
+                  <th style="width: 15%;">Unité</th>
+                  <th style="width: 15%;">Qté</th>
+                  <th style="width: 20%;">Fournisseur</th>
+                  <th style="width: 10%;"></th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td><input type="text" placeholder="Article..."></td>
-                  <td><select><option>U</option><option>ML</option><option>M²</option><option>KG</option></select></td>
-                  <td><input type="number" step="0.01" placeholder="0"></td>
+                  <td><select><option>U</option><option>ML</option><option>M²</option></select></td>
+                  <td><input type="number" step="0.01"></td>
                   <td><input type="text" placeholder="Fournisseur..."></td>
                   <td><button class="btn-danger btn-small" onclick="this.closest('tr').remove()">✕</button></td>
                 </tr>
@@ -792,101 +645,241 @@
             </table>
           </div>
           <button class="add-row-btn" onclick="ajouterLigneMateriel()">+ Ajouter article</button>
-        </div>
 
-        <div class="card">
-          <div class="card-title">NOTES</div>
-          <textarea id="notes_materiel" placeholder="Conditions, délais..."></textarea>
-          <div class="page-footer">
-            <button class="btn btn-primary" onclick="sauvegarderMateriel()">💾 Sauvegarder</button>
-            <button class="btn btn-secondary" onclick="window.print()">🖨️ Imprimer</button>
-          </div>
+          <button class="btn btn-primary btn-small" style="margin-top: 12px;" onclick="saveMateriel()">💾 Sauvegarder</button>
         </div>
       </div>
 
     </div>
   </div>
 
-  <button class="install-btn" id="installBtn" onclick="installApp()">⬇️</button>
+  <!-- MODAL NOUVEAU CHANTIER -->
+  <div class="modal" id="newChantierModal">
+    <div class="modal-content">
+      <h2>Nouveau chantier</h2>
+      <div class="form-group">
+        <label>Nom du chantier</label>
+        <input type="text" id="newChantierName" placeholder="Ex: Maison rue de la Paix">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 16px;">
+        <button class="btn btn-primary" onclick="createChantier()" style="flex: 1;">Créer</button>
+        <button class="btn btn-secondary" onclick="closeNewChantierModal()" style="flex: 1;">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    // Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(reg => {
-          console.log('✓ Service Worker inscrit');
-          updateSyncStatus();
-        })
-        .catch(err => console.log('Erreur SW:', err));
+    // SUPABASE CONFIG
+    const SUPABASE_URL = 'https://sfndmuvytdlmijgjgpke.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmbmRtdXZ5dGRsbWlqZ2pncGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE3NjU1OTUsImV4cCI6MjA0NzM0MTU5NX0.4XFQF1Obgo1PRGx0rcBnHg__Sy-M4yb8nNzTuKzKqgg';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      navigator.serviceWorker.addEventListener('message', event => {
-        if (event.data.type === 'SYNC_COMPLETE') {
-          updateSyncStatus();
+    let currentChantier = null;
+    let allChantiers = [];
+    const userId = 'user-' + Math.random().toString(36).substr(2, 9);
+
+    // INITIALISER
+    async function init() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js').catch(() => {});
+      }
+      
+      await loadChantiers();
+      setupRealtimeSync();
+      updateSyncStatus();
+    }
+
+    // CHARGER LES CHANTIERS
+    async function loadChantiers() {
+      try {
+        const { data, error } = await supabase
+          .from('chantiers')
+          .select('*')
+          .eq('user_id', userId)
+          .order('date_creation', { ascending: false });
+        
+        if (error) throw error;
+        allChantiers = data || [];
+        renderChantierButtons();
+        
+        if (allChantiers.length > 0 && !currentChantier) {
+          selectChantier(allChantiers[0]);
         }
+      } catch (error) {
+        console.error('Erreur chargement:', error);
+      }
+    }
+
+    // AFFICHER LES BOUTONS CHANTIERS
+    function renderChantierButtons() {
+      const selector = document.getElementById('chantierSelector');
+      const buttons = selector.querySelectorAll('.chantier-btn');
+      buttons.forEach(btn => btn.remove());
+
+      allChantiers.forEach(chantier => {
+        const btn = document.createElement('button');
+        btn.className = 'chantier-btn' + (currentChantier?.id === chantier.id ? ' active' : '');
+        btn.textContent = chantier.nom;
+        btn.onclick = () => selectChantier(chantier);
+        
+        const btnLong = btn.cloneNode(true);
+        btnLong.oncontextmenu = (e) => {
+          e.preventDefault();
+          if (confirm('Supprimer ' + chantier.nom + ' ?')) {
+            deleteChantier(chantier.id);
+          }
+        };
+        btnLong.onclick = () => selectChantier(chantier);
+        
+        selector.insertBefore(btnLong, selector.firstChild.nextSibling);
       });
     }
 
-    // Détection online/offline
-    window.addEventListener('online', () => {
-      updateSyncStatus();
-      syncData();
-    });
+    // SÉLECTIONNER CHANTIER
+    function selectChantier(chantier) {
+      currentChantier = chantier;
+      loadChantierData();
+      renderChantierButtons();
+    }
 
-    window.addEventListener('offline', () => {
-      updateSyncStatus();
-    });
+    // CHARGER LES DONNÉES DU CHANTIER
+    function loadChantierData() {
+      if (!currentChantier) return;
 
-    function updateSyncStatus() {
-      const syncEl = document.querySelector('.sync-status');
-      if (navigator.onLine) {
-        syncEl.classList.remove('offline', 'syncing');
-        syncEl.classList.add('synced');
-        syncEl.title = 'Connecté';
-      } else {
-        syncEl.classList.remove('synced', 'syncing');
-        syncEl.classList.add('offline');
-        syncEl.title = 'Hors ligne';
+      const brouillon = currentChantier.brouillon || {};
+      const metre = currentChantier.metre || {};
+      const calcul = currentChantier.calcul || {};
+      const materiel = currentChantier.materiel || {};
+
+      document.getElementById('brouillon_notes').value = brouillon.notes || '';
+    }
+
+    // SAUVEGARDER BROUILLON
+    async function saveBrouillon() {
+      if (!currentChantier) return;
+      
+      try {
+        const brouillon = {
+          notes: document.getElementById('brouillon_notes').value
+        };
+
+        const { error } = await supabase
+          .from('chantiers')
+          .update({ brouillon })
+          .eq('id', currentChantier.id);
+
+        if (error) throw error;
+        currentChantier.brouillon = brouillon;
+        alert('✓ Sauvegardé');
+      } catch (error) {
+        console.error('Erreur sauvegarde:', error);
+        alert('Erreur: ' + error.message);
       }
     }
 
-    // Installation PWA
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById('installBtn').classList.add('show');
-    });
+    // SAUVEGARDER CALCUL
+    async function saveCalcul() {
+      if (!currentChantier) return;
+      
+      try {
+        const calcul = {};
 
-    function installApp() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(choice => {
-          if (choice.outcome === 'accepted') {
-            alert('✓ Application installée!');
-            document.getElementById('installBtn').classList.remove('show');
-          }
-          deferredPrompt = null;
-        });
+        const { error } = await supabase
+          .from('chantiers')
+          .update({ calcul })
+          .eq('id', currentChantier.id);
+
+        if (error) throw error;
+        alert('✓ Sauvegardé');
+      } catch (error) {
+        console.error('Erreur:', error);
       }
     }
 
-    // Navigation
+    // SAUVEGARDER MATÉRIEL
+    async function saveMateriel() {
+      if (!currentChantier) return;
+      
+      try {
+        const materiel = {};
+
+        const { error } = await supabase
+          .from('chantiers')
+          .update({ materiel })
+          .eq('id', currentChantier.id);
+
+        if (error) throw error;
+        alert('✓ Sauvegardé');
+      } catch (error) {
+        console.error('Erreur:', error);
+      }
+    }
+
+    // NOUVEAU CHANTIER
+    async function createChantier() {
+      const nom = document.getElementById('newChantierName').value.trim();
+      if (!nom) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('chantiers')
+          .insert([{
+            user_id: userId,
+            nom: nom,
+            brouillon: {},
+            metre: {},
+            calcul: {},
+            materiel: {}
+          }])
+          .select();
+
+        if (error) throw error;
+        
+        closeNewChantierModal();
+        await loadChantiers();
+        selectChantier(data[0]);
+      } catch (error) {
+        alert('Erreur: ' + error.message);
+      }
+    }
+
+    // SUPPRIMER CHANTIER
+    async function deleteChantier(id) {
+      try {
+        const { error } = await supabase
+          .from('chantiers')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        await loadChantiers();
+      } catch (error) {
+        alert('Erreur: ' + error.message);
+      }
+    }
+
+    // MODAL
+    function openNewChantierModal() {
+      document.getElementById('newChantierModal').classList.add('show');
+      document.getElementById('newChantierName').focus();
+    }
+
+    function closeNewChantierModal() {
+      document.getElementById('newChantierModal').classList.remove('show');
+      document.getElementById('newChantierName').value = '';
+    }
+
+    // PAGES
     function showPage(pageId, btn) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(pageId).classList.add('active');
       btn.classList.add('active');
-      localStorage.setItem('activePage', pageId);
     }
 
-    window.addEventListener('load', () => {
-      const saved = localStorage.getItem('activePage') || 'brouillon';
-      document.querySelector(`[onclick*="'${saved}'"]`)?.click();
-      chargerDonnees();
-      updateSyncStatus();
-    });
-
-    // Métré
+    // MÉTRÉ
     function changerForme() {
       document.querySelectorAll('[id^="form_"]').forEach(f => f.style.display = 'none');
       document.getElementById('form_' + document.getElementById('forme').value).style.display = 'block';
@@ -910,27 +903,17 @@
           const h = parseFloat(document.getElementById('trap_h').value);
           surface = ((b1 + b2) * h) / 2;
           break;
-        case 'losange':
-          const d1 = parseFloat(document.getElementById('los_d1').value);
-          const d2 = parseFloat(document.getElementById('los_d2').value);
-          surface = (d1 * d2) / 2;
-          break;
-        case 'cercle':
-          const r = parseFloat(document.getElementById('circ_r').value);
-          surface = Math.PI * r * r;
-          break;
       }
       document.getElementById('result_surface').textContent = surface.toFixed(2) + ' m²';
     }
 
-    // Tableaux
+    // CALCUL
     function calculerLigne(input) {
       const row = input.closest('tr');
       const qty = parseFloat(input.value) || 0;
       const chute = parseFloat(input.dataset.chute) || 0;
       const total = qty * (1 + chute);
       row.querySelector('.total').textContent = total.toFixed(2);
-      autoSave();
     }
 
     function ajouterLigne(tableId) {
@@ -950,104 +933,48 @@
       const row = tbody.insertRow();
       row.innerHTML = `
         <td><input type="text" placeholder="Article..."></td>
-        <td><select><option>U</option><option>ML</option><option>M²</option><option>KG</option></select></td>
-        <td><input type="number" step="0.01" placeholder="0"></td>
+        <td><select><option>U</option><option>ML</option><option>M²</option></select></td>
+        <td><input type="number" step="0.01"></td>
         <td><input type="text" placeholder="Fournisseur..."></td>
         <td><button class="btn-danger btn-small" onclick="this.closest('tr').remove()">✕</button></td>
       `;
     }
 
-    // Sauvegarde
-    function autoSave() {
-      clearTimeout(window.saveTimeout);
-      window.saveTimeout = setTimeout(() => {
-        sauvegarderCalcul();
-      }, 2000);
+    // SYNC
+    function setupRealtimeSync() {
+      supabase
+        .channel(`chantiers:${userId}`)
+        .on('postgres_changes', { 
+          event: '*', 
+          schema: 'public', 
+          table: 'chantiers',
+          filter: `user_id=eq.${userId}`
+        }, payload => {
+          loadChantiers();
+          if (currentChantier && payload.new?.id === currentChantier.id) {
+            loadChantierData();
+          }
+        })
+        .subscribe();
     }
 
-    function sauvegarderBrouillon() {
-      const data = {
-        nom_chantier: document.getElementById('nom_chantier').value,
-        date_chantier: document.getElementById('date_chantier').value,
-        notes_brouillon: document.getElementById('notes_brouillon').value,
-        client_info: document.getElementById('client_info').value
-      };
-      localStorage.setItem('brouillon_data', JSON.stringify(data));
-      alert('✓ Sauvegardé');
-    }
-
-    function sauvegarderCalcul() {
-      const data = {
-        loc_bat: document.getElementById('loc_bat').value,
-        surface_tot: document.getElementById('surface_tot').value,
-        notes_calcul: document.getElementById('notes_calcul').value
-      };
-      localStorage.setItem('calcul_data', JSON.stringify(data));
-    }
-
-    function sauvegarderMateriel() {
-      const data = {
-        notes_materiel: document.getElementById('notes_materiel').value
-      };
-      localStorage.setItem('materiel_data', JSON.stringify(data));
-      alert('✓ Sauvegardé');
-    }
-
-    function chargerDonnees() {
-      const brouillon = localStorage.getItem('brouillon_data');
-      if (brouillon) {
-        const data = JSON.parse(brouillon);
-        document.getElementById('nom_chantier').value = data.nom_chantier || '';
-        document.getElementById('date_chantier').value = data.date_chantier || '';
-        document.getElementById('notes_brouillon').value = data.notes_brouillon || '';
-        document.getElementById('client_info').value = data.client_info || '';
-      }
-
-      const calcul = localStorage.getItem('calcul_data');
-      if (calcul) {
-        const data = JSON.parse(calcul);
-        document.getElementById('loc_bat').value = data.loc_bat || '';
-        document.getElementById('surface_tot').value = data.surface_tot || '';
-        document.getElementById('notes_calcul').value = data.notes_calcul || '';
-      }
-
-      const materiel = localStorage.getItem('materiel_data');
-      if (materiel) {
-        const data = JSON.parse(materiel);
-        document.getElementById('notes_materiel').value = data.notes_materiel || '';
-      }
-    }
-
-    function effacerBrouillon() {
-      if (confirm('Êtes-vous sûr ?')) {
-        document.getElementById('nom_chantier').value = '';
-        document.getElementById('date_chantier').value = '';
-        document.getElementById('notes_brouillon').value = '';
-        document.getElementById('client_info').value = '';
-        localStorage.removeItem('brouillon_data');
-        alert('✓ Effacé');
-      }
-    }
-
-    function syncData() {
-      // Synchronisation des données
+    function updateSyncStatus() {
+      const status = document.getElementById('syncStatus');
       if (navigator.onLine) {
-        console.log('🔄 Synchronisation...');
-        // Les données sont sauvegardées localement
-        // Vous pouvez ajouter une sync serveur ici plus tard
+        status.textContent = '✓';
+        status.title = 'Connecté';
+      } else {
+        status.textContent = '⊘';
+        status.title = 'Hors ligne';
       }
     }
 
-    // Initialiser
-    changerForme();
-    calculerSurface();
+    window.addEventListener('online', updateSyncStatus);
+    window.addEventListener('offline', updateSyncStatus);
 
-    // Auto-save sur les inputs
-    document.addEventListener('change', (e) => {
-      if (e.target.matches('input, textarea, select')) {
-        autoSave();
-      }
-    });
+    // INIT
+    init();
+    changerForme();
   </script>
 </body>
 </html>
