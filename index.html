@@ -595,25 +595,51 @@ async function init(){
   loadLocal();
   // 2) Si pas de réseau ou pas de client, on reste en local
   if(!sb||!navigator.onLine){setSync(false);return}
-  // 3) Tenter de récupérer le cloud en arrière-plan (sans bloquer l'affichage)
+  // 3) Synchroniser avec le cloud SANS écraser le travail local non envoyé
   try{
-    const{data,error}=await sb.from('chantiers').select('*').eq('user_id',userId).order('updated_at',{ascending:false});
-    if(error)throw error;
-    const cloud=data||[];
-    // fusion simple : le cloud fait référence s'il existe, sinon on garde le local
-    if(cloud.length){
-      chantiers=cloud;
-      saveLocal();
-      // garder le chantier courant ouvert s'il existe encore
-      const keep=cur?cloud.find(c=>c.id===cur.id):null;
-      if(keep)selectChantier(keep);
-      else selectChantier(cloud[0]);
-    }else if(!chantiers.length){
-      showNoChantier();
-    }
+    await mergeCloud();
     setupRealtime();
     setSync(true);
   }catch(e){console.warn('Cloud injoignable, mode local',e);setSync(false);}
+}
+// Fusionne le cloud et le local en gardant, pour chaque chantier, la version la plus récente (updated_at).
+// Renvoie vers le cloud les chantiers locaux plus récents ou absents du cloud.
+async function mergeCloud(){
+  const{data,error}=await sb.from('chantiers').select('*').eq('user_id',userId).order('updated_at',{ascending:false});
+  if(error)throw error;
+  const cloud=data||[];
+  const cloudById={};cloud.forEach(c=>cloudById[c.id]=c);
+  const localById={};chantiers.forEach(c=>localById[c.id]=c);
+  const fusion={};
+  const aPousser=[]; // chantiers locaux à renvoyer au cloud
+  // parcourir l'union des deux
+  const tousIds=new Set([...Object.keys(cloudById),...Object.keys(localById)]);
+  tousIds.forEach(id=>{
+    const c=cloudById[id], l=localById[id];
+    if(c&&!l){fusion[id]=c;}                       // seulement cloud
+    else if(l&&!c){fusion[id]=l;aPousser.push(l);} // seulement local -> à envoyer
+    else{
+      // présent des deux : garder le plus récent
+      const tc=new Date(c.updated_at||0).getTime();
+      const tl=new Date(l.updated_at||0).getTime();
+      if(tl>tc){fusion[id]=l;aPousser.push(l);}    // local plus récent -> envoyer
+      else{fusion[id]=c;}
+    }
+  });
+  // reconstruire la liste triée par date desc
+  chantiers=Object.values(fusion).sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0));
+  saveLocal();
+  // renvoyer au cloud les versions locales plus récentes / nouvelles
+  for(const l of aPousser){
+    try{
+      await sb.from('chantiers').upsert({id:l.id,user_id:userId,nom:l.nom,data:l.data,updated_at:l.updated_at||new Date().toISOString()});
+    }catch(e){console.warn('push KO',e)}
+  }
+  // réafficher
+  if(chantiers.length){
+    const keep=cur?chantiers.find(c=>c.id===cur.id):null;
+    selectChantier(keep||chantiers[0]);
+  }else{showNoChantier();}
 }
 function loadLocal(){
   try{
@@ -1192,14 +1218,8 @@ window.addEventListener('pageshow',()=>{if(cur){try{renderAll();goTab(activeTab)
 window.addEventListener('online',async()=>{
   setSync(true);
   toast('Connexion rétablie — synchronisation…','ok');
-  // renvoyer le travail local vers le cloud
-  if(cur&&sb){try{await saveNow();}catch(e){}}
-  // re-télécharger les éventuelles modifs des autres appareils
-  if(sb){try{
-    const{data}=await sb.from('chantiers').select('*').eq('user_id',userId).order('updated_at',{ascending:false});
-    if(data){chantiers=data;saveLocal();const keep=cur?data.find(c=>c.id===cur.id):null;if(keep)selectChantier(keep);else if(data.length)selectChantier(data[0]);}
-    setupRealtime();
-  }catch(e){}}
+  if(cur&&sb&&dirty){try{await saveNow();}catch(e){}}
+  if(sb){try{await mergeCloud();setupRealtime();toast('Synchronisé ✓','ok');}catch(e){console.warn(e)}}
 });
 window.addEventListener('offline',()=>{setSync(false);toast('Hors-ligne — sauvegarde locale active','err')});
 
