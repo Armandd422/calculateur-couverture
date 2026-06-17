@@ -568,6 +568,8 @@ let curToit=null;        // id toiture courante
 let dirty=false;
 let saveTimer=null;
 let activeTab='metre';
+// Détection mobile (tactile + petit écran) : la barre d'opérateurs ne s'affiche que sur téléphone
+const IS_MOBILE=('ontouchstart' in window)&&(window.matchMedia('(max-width:820px)').matches);
 
 /* ---------- HELPERS ---------- */
 const $=id=>document.getElementById(id);
@@ -864,14 +866,15 @@ function ouvrageCard(o,t){
     </div>
     <div class="ouv-body">
       <div class="mesures"></div>
-      <div class="op-row">
+      ${IS_MOBILE?`<div class="op-row">
         <button class="op-btn" onclick="insertOp(this,'+')">+</button>
         <button class="op-btn" onclick="insertOp(this,'-')">−</button>
         <button class="op-btn" onclick="insertOp(this,'*')">×</button>
         <button class="op-btn" onclick="insertOp(this,'/')">÷</button>
-      </div>
+        <button class="op-btn" onclick="insertOp(this,'.')">,</button>
+      </div>`:''}
       <div class="add-mesure">
-        <input type="text" inputmode="decimal" autocomplete="off" placeholder="ex: 3.5 ou 3×5" onkeydown="if(event.key==='Enter')addMesure(this,'${t.id}','${o.id}')">
+        <input type="text" inputmode="decimal" autocomplete="off" placeholder="ex: 3,5 ou 3×5" onkeydown="if(event.key==='Enter')addMesure(this,'${t.id}','${o.id}')">
         <button class="btn btn-primary" onclick="addMesure(this.previousElementSibling,'${t.id}','${o.id}')">+</button>
       </div>
       <div class="ouv-sum"><span>Total ${o.nom}</span><span><b>${fmt(total)}</b> ${o.unite}</span></div>
@@ -899,15 +902,22 @@ function evalFormule(str){
   try{const r=Function('"use strict";return('+s+')')();return(typeof r==='number'&&isFinite(r))?r:NaN}catch(e){return NaN}
 }
 function insertOp(btn,op){
-  // trouver le champ mesure de la même carte ouvrage
   const body=btn.closest('.ouv-body');
   const inp=body?body.querySelector('.add-mesure input'):null;
   if(!inp)return;
-  const v=inp.value.trim();
-  // éviter deux opérateurs à la suite
-  if(/[+\-*/]$/.test(v)){inp.value=v.slice(0,-1)+op;}
-  else if(v===''){return;} // pas d'opérateur en premier
-  else{inp.value=v+op;}
+  let v=inp.value;
+  if(op==='.'){
+    // virgule : autorisée seulement si le nombre courant n'en a pas déjà
+    const dernierNombre=v.split(/[+\-*/]/).pop();
+    if(dernierNombre.includes('.')){inp.focus();return;}
+    if(v===''||/[+\-*/]$/.test(v)){v=v+'0.';}else{v=v+'.';}
+    inp.value=v;inp.focus();return;
+  }
+  // opérateurs : pas en premier, pas deux à la suite
+  const t=v.trim();
+  if(t===''){inp.focus();return;}
+  if(/[+\-*/]$/.test(t)){inp.value=t.slice(0,-1)+op;}
+  else{inp.value=t+op;}
   inp.focus();
 }
 function addMesure(inp,tid,oid){
