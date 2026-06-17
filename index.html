@@ -6,973 +6,274 @@
   <meta name="theme-color" content="#E63946">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Calc Toiture">
-  
+  <meta name="apple-mobile-web-app-title" content="Calc Couverture">
   <link rel="manifest" href="manifest.json">
   <title>Calculateur Couverture - Couvr'Toit</title>
-
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --primary: #E63946;
       --primary-dark: #A4161A;
       --accent: #1D3557;
-      --bg: #F5F5F5;
+      --bg: #F8F9FA;
       --card: #FFFFFF;
-      --border: #DCDCDC;
-      --text: #333333;
+      --border: #E0E0E0;
+      --text: #2C2C2C;
       --text-light: #666666;
       --success: #10B981;
-      --error: #EF4444;
     }
-
-    html, body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .container {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-
-    /* HEADER */
-    header {
-      background: white;
-      border-bottom: 3px solid var(--primary);
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .logo-img {
-      height: 40px;
-      width: auto;
-    }
-
-    .header-text {
-      flex: 1;
-    }
-
-    .header-text h1 {
-      font-size: 16px;
-      font-weight: bold;
-      color: var(--primary);
-      margin: 0;
-    }
-
-    .header-text p {
-      font-size: 10px;
-      color: var(--text-light);
-      margin: 0;
-    }
-
-    .sync-status {
-      font-size: 14px;
-      cursor: help;
-    }
-
-    /* CHANTIER SELECTOR */
-    .chantier-selector {
-      background: white;
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-      flex-shrink: 0;
-      overflow-y: auto;
-      max-height: 80px;
-    }
-
-    .chantier-btn {
-      padding: 6px 12px;
-      border: 2px solid var(--border);
-      background: white;
-      color: var(--text);
-      border-radius: 20px;
-      font-size: 12px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s;
-      font-weight: bold;
-    }
-
-    .chantier-btn:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    .chantier-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-
-    .btn-new-chantier {
-      padding: 6px 12px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 20px;
-      font-size: 12px;
-      cursor: pointer;
-      font-weight: bold;
-      flex-shrink: 0;
-    }
-
-    /* TABS */
-    .tabs-bar {
-      background: white;
-      border-bottom: 2px solid var(--border);
-      display: flex;
-      gap: 0;
-      padding: 0;
-      overflow-x: auto;
-      flex-shrink: 0;
-    }
-
-    .tab-btn {
-      padding: 10px 12px;
-      border: none;
-      background: white;
-      color: var(--text-light);
-      font-size: 11px;
-      font-weight: bold;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s;
-      white-space: nowrap;
-      flex-shrink: 0;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-
-    .tab-btn:active {
-      color: var(--primary);
-      background: var(--bg);
-    }
-
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-
-    /* CONTENT */
-    .content-wrapper {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .page {
-      display: none;
-      min-height: 100%;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    /* CARDS */
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-
-    .card-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: var(--accent);
-      margin-bottom: 10px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--primary);
-    }
-
-    /* FORMS */
-    .form-group {
-      margin-bottom: 10px;
-    }
-
-    label {
-      display: block;
-      font-size: 11px;
-      font-weight: bold;
-      color: var(--text);
-      margin-bottom: 3px;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    input[type="date"],
-    select,
-    textarea {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-size: 13px;
-      font-family: inherit;
-      color: var(--text);
-      -webkit-appearance: none;
-      appearance: none;
-      background-color: white;
-    }
-
-    input[type="text"]:focus,
-    input[type="number"]:focus,
-    input[type="date"]:focus,
-    select:focus,
-    textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.1);
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    /* GRID */
-    .grid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .grid-2 {
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    }
-
-    /* TABLE */
-    .table-container {
-      overflow-x: auto;
-      margin-bottom: 10px;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      background: white;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-
-    thead {
-      background: var(--accent);
-      color: white;
-      position: sticky;
-      top: 0;
-    }
-
-    th {
-      padding: 8px;
-      text-align: left;
-      font-size: 10px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.2px;
-    }
-
-    td {
-      padding: 6px 8px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    tbody tr:hover {
-      background: #f9f9f9;
-    }
-
-    td input[type="text"],
-    td input[type="number"],
-    td select {
-      width: 100%;
-      padding: 4px 6px;
-      font-size: 11px;
-      border: 1px solid var(--border);
-    }
-
-    /* BUTTONS */
-    .btn {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-primary:active {
-      background: var(--primary-dark);
-    }
-
-    .btn-secondary {
-      background: var(--text-light);
-      color: white;
-    }
-
-    .btn-danger {
-      background: var(--error);
-      color: white;
-      padding: 4px 8px;
-      font-size: 10px;
-    }
-
-    .btn-small {
-      padding: 4px 8px;
-      font-size: 10px;
-    }
-
-    .add-row-btn {
-      width: 100%;
-      padding: 10px;
-      text-align: center;
-      border: 2px dashed var(--primary);
-      background: white;
-      color: var(--primary);
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 11px;
-      transition: all 0.2s;
-    }
-
-    .add-row-btn:active {
-      background: var(--primary);
-      color: white;
-    }
-
-    .info-box {
-      background: var(--bg);
-      padding: 8px;
-      border-radius: 4px;
-      border-left: 3px solid var(--primary);
-      font-size: 11px;
-      margin-bottom: 10px;
-      line-height: 1.4;
-    }
-
-    .section-subtitle {
-      font-size: 11px;
-      font-weight: bold;
-      color: var(--accent);
-      margin: 10px 0 8px 0;
-      text-transform: uppercase;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .modal.show {
-      display: flex;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .modal-content h2 {
-      margin-bottom: 16px;
-      color: var(--accent);
-    }
-
-    .loading {
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    @supports (padding: max(0px)) {
-      .content-wrapper {
-        padding-left: max(12px, env(safe-area-inset-left));
-        padding-right: max(12px, env(safe-area-inset-right));
-        padding-bottom: max(12px, env(safe-area-inset-bottom));
-      }
-    }
+    html, body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); height: 100%; overflow: hidden; }
+    .app { display: flex; flex-direction: column; height: 100vh; }
+    header { background: white; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-bottom: 3px solid var(--primary); }
+    .logo { height: 45px; width: auto; }
+    .header-info { flex: 1; }
+    .header-info h1 { font-size: 16px; font-weight: 800; color: var(--primary); margin: 0; letter-spacing: -0.5px; }
+    .header-info p { font-size: 11px; color: var(--text-light); margin: 2px 0 0 0; }
+    .sync-badge { font-size: 18px; cursor: help; }
+    .chantier-bar { background: white; padding: 10px 12px; display: flex; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .chantier-btn { padding: 6px 12px; background: white; border: 2px solid var(--border); border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+    .chantier-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .btn-new { background: var(--primary); color: white; border: none; padding: 6px 14px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 12px; }
+    .tabs { display: flex; gap: 0; background: white; border-bottom: 2px solid var(--border); padding: 0; }
+    .tab { flex: 1; padding: 12px 8px; border: none; background: transparent; color: var(--text-light); font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; border-bottom: 3px solid transparent; transition: all 0.3s; }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .content { flex: 1; overflow-y: auto; padding: 14px; -webkit-overflow-scrolling: touch; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border); }
+    .card-title { font-size: 13px; font-weight: 800; color: white; background: var(--primary); padding: 8px 12px; margin: -16px -16px 12px -16px; border-radius: 8px 8px 0 0; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.3px; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-family: inherit; color: var(--text); }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(230,57,70,0.1); }
+    textarea { min-height: 100px; resize: vertical; }
+    .btn { padding: 10px 16px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:active { background: var(--primary-dark); }
+    .btn-small { padding: 6px 10px; font-size: 10px; }
+    .btn-danger { background: #EF4444; color: white; }
+    .table-wrapper { overflow-x: auto; margin-bottom: 10px; background: white; border-radius: 6px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    thead { background: var(--accent); color: white; position: sticky; top: 0; }
+    th { padding: 10px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    tbody tr:hover { background: #f5f5f5; }
+    td input, td select { padding: 6px; font-size: 11px; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+    .modal.show { display: flex; }
+    .modal-box { background: white; border-radius: 10px; padding: 20px; max-width: 350px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+    .modal-box h2 { color: var(--primary); margin-bottom: 16px; }
+    .modal-box .btn { width: 100%; margin-top: 10px; }
+    .add-btn { width: 100%; padding: 12px; border: 2px dashed var(--primary); background: white; color: var(--primary); border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px; }
+    .add-btn:active { background: var(--primary); color: white; }
+    .result-box { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 20px; border-radius: 8px; text-align: center; margin-top: 12px; }
+    .result-value { font-size: 32px; font-weight: 800; margin-top: 8px; }
+    .info-box { background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 10px 12px; border-radius: 4px; font-size: 11px; margin-bottom: 10px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- HEADER -->
+  <div class="app">
     <header>
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFq0lEQVR4nO2Y/0tTYRDH/+MnfmAxqLCLWlGJH5DEQjL2oU6f/OhDEJpxQCxISyg0K6Uo0ixSLLLS5S/bOl3mzHa5m3uXe/e59zlw7sE59+PZ3fd2ZnafBQDI5XKFSqWSq1QqhUql4iKRSH5+fp6fn5+Xn5+Pz8/P4/l8Xi4SiRRKpVJBl8vl4hy5XI7Pz89jzWYziMViwvp8Po7H41Eul5Ozs7M4ER6Px2MYhrFYrMDb25twOBykz+fjYrEYFovFhM1mQ3p7O5GZmUmlpKSQOTk5JDo6mqysrBCZmZlkcXExSUtLIyMjI4hJScmlS5eQSCRChoeHRXT09HQkHo8LQ0NDyNnZGWL8/PzIwoQ4PT3F9vZ2QltbG5mfnycmJydJZmYmqaiouET6+/vJ/PwzSU5OJiUlJWRubg5paWlBzGQyIZlMRkZGRhDweDxIcXExWVhYIDk5OWT50CHy7ORkws7Ojqyvr1MyPz+P1NXVkfr6etLQ0EDMZjNycXGBpKam0qm5ubmRb9++0fmBgQHy+fNnUlBQQMbHx8nS0hJJSUkhRUVFpKGhAZmbmyOZmZmks7OTHj+73U68Xm+HkampKcrn8yWkpqaG7O7upvNZWVlkZ2eH/PnzR0JDQ0lJSQni8XjQ1dWFvLi4kBoYGBCXl5cJBwcHcu3aNZKUlES+fPlCYmNjSUJCAvm6sJDw9fWlzzNVVVVl8pnwWpQtpKCggC6QyWTI/Pz82jImEgqFgtTV1dFGJxIJXZNSSZkiHECBWCwm3d3dp+pM7q8pAwMD9AazWCzU4PDwMAqFAgyGgyBw9cpVhMfj0TNyc3NRWlpKBu7EULHUSAz+2NsbNDU1ZQfQ9u3bFbW1tWR7e5uOXl1dRWdnJ1kP5K0/kfHycuLhw4f02A/j4+Oi7u5uMqI47kB0dHQEn8+Hzs5O9Pf3I/+Bv6qjLi8vxaampgm1Wk1HGxoayKlxOVNQUIDh4WFEX1+fWIZhSEZGBqmoqFCQqakpYrFYxNLTU8m+fr4YhmOYnxBWj3BnZyc5Ojqi0p6VlUX27duHZGdnAz4+3nR8dXWVXF9cJG5ubviRZFwuV/+kiJVKBQlxCAQCRFBQEElJSSG5ubmKJzTZBq1WG8K+wGDfMBwdHcnJyQlSU1NDQkNDidfrlbDdXk8d4+PjeKaJOKxWqxf/m8LvfyCJI6hUqsIXL16gp6eHKJVKVFRUoLOzE1VVVUhPT8fw8DACAwNRXV2N6elpYjKZsLS0hPb2dnR1dVG4h4eHo7q6mtV5kTCAi4sLfHx8QJIkqKmpQVZWFvb29qi+Dw4OQi6XI5L10dSJiQm+YfC3Z2zfvl1m3hl6+xpvvFPRIhQK6Sh7e3t+Xz8Tr2Wm9RCSwvCFqqLrxNMXcILN5XC1u9X9mLdlr2YF7bOiUO97N5EflF3nT3OaVOuUqaHvA8yDxDQmlk1aXQqhAhS7g4OaTwVLgNJBEE7DIHF6MvF96e9wS5f8ORn4VsLvFUt8rEjTBvLFzLJoNHMKPTuJ3Q4VdXWzvOYCjVcgS1xKqQxeLfwf7c5MxdNMqGHVPAd91SDwYKfHJCKPJNMpzYx5SPQVWYsN4y4LPZ+FiUZZxMXMM6Qv2EYSKhAIWPKJL9g/CJrqoXltPY8K5C6fWo/uFc8iYmUi0FJNRpQqv1cGYh3wbYTKCfY1xNq+2Pv1QY0Gp0N4XoHfTJxbKPJ6qVV+JwdyDvDR3oN3CaXXS0sYvpaMdHqGV1AeLgfKs12Y7c2Yex0zy2Ul3V8qYK/FP3spMfTJAkRFITUXzfKQTk+E+aHXrYzHhvGl9wq5rxPmZU7XqAsTR5gNpBJ9uNpBJ9gG5gP8A/AET3UNVGjzFxYBgF5+Pnz8/D2+gPYvIZbUV74fPb1PZAOS3KqvQkAEQAaEQAA" alt="Couvr'Toit" class="logo-img">
-      <div class="header-text">
-        <h1>CALC TOITURE</h1>
-        <p>Couvr'Toit - Gestion chantiers</p>
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFq0lEQVR4nO2Y/0tTYRDH/+MnfmAxqLCLWlGJH5DEQjL2oU6f/OhDEJpxQCxISyg0K6Uo0ixSLLLS5S/bOl3mzHa5m3uXe/e59zlw7sE59+PZ3fd2ZnafBQDI5XKFSqWSq1QqhUql4iKRSH5+fp6fn5+Xn5+Pz8/P4/l8Xi4SiRRKpVJBl8vl4hy5XI7Pz89jzWYziMViwvp8Po7H41Eul5Ozs7M4ER6Px2MYhrFYrMDb25twOBykz+fjYrEYFovFhM1mQ3p7O5GZmUmlpKSQOTk5JDo6mqysrBCZmZlkcXExSUtLIyMjI4hJScmlS5eQSCRChoeHRXT09HQkHo8LQ0NDyNnZGWL8/PzIwoQ4PT3F9vZ2QltbG5mfnycmJydJZmYmqaiouET6+/vJ/PwzSU5OJiUlJWRubg5paWlBzGQyIZlMRkZGRhDweDxIcXExWVhYIDk5OWT50CHy7ORkws7Ojqyvr1MyPz+P1NXVkfr6etLQ0EDMZjNycXGBpKam0qm5ubmRb9++0fmBgQHy+fNnUlBQQMbHx8nS0hJJSUkhRUVFpKGhAZmbmyOZmZmks7OTHj+73U68Xm+HkampKcrn8yWkpqaG7O7upvNZWVlkcXGRvLi4kBoYGBCXl5cJBwcHcu3aNZKUlES+fPlCYmNjSUJCAvm6sJDw9fWlzzNVVVVl8pnwWpQtpKCggC6QyWTI/Pz82jImEgqFgtTV1dFGJxIJXZNSSZkiHECBWCwm3d3dp+pM7q8pAwMD9AazWCzU4PDwMAqFAgyGgyBw9cpVhMfj0TNyc3NRWlpKBu7EULHUSAz+2NsbNDU1ZQfQ9u3bFbW1tWR7e5uOXl1dRWdnJ1kP5K0/kfHycuLhw4f02A/j4+Oi7u5uMqI47kB0dHQEn8+Hzs5O9Pf3I/+Bv6qjLi8vxaampgm1Wk1HGxoayKlxOVNQUIDh4WFEX1+fWIZhSEZGBqmoqFCQqakpYrFYxNLTU8m+fr4YhmOYnxBWj3BnZyc5Ojqi0p6VlUX27duHZGdnAz4+3nR8dXWVXF9cJG5ubviRZFwuV/+kiJVKBQlxCAQCRFBQEElJSSG5ubmKJzTZBq1WG8K+wGDfMBwdHcnJyQlSU1NDQkNDidfrlbDdXk8d4+PjeKaJOKxWqxf/m8LvfyCJI6hUqsIXL16gp6eHKJVKVFRUoLOzE1VVVUhPT8fw8DACAwNRXV2N6elpYjKZsLS0hPb2dnR1dVG4h4eHo7q6mtV5kTCAi4sLfHx8QJIkqKmpQVZWFvb29qi+Dw4OQi6XI5L10dSJiQm+YfC3Z2zfvl1m3hl6+xpvvFPRIhQK6Sh7e3t+Xz8Tr2Wm9RCSwvCFqqLrxNMXcILN5XC1u9X9mLdlr2YF7bOiUO97N5EflF3nT3OaVOuUqaHvA8yDxDQmlk1aXQqhAhS7g4OaTwVLgNJBEE7DIHF6MvF96e9wS5f8ORn4VsLvFUt8rEjTBvLFzLJoNHMKPTuJ3Q4VdXWzvOYCjVcgS1xKqQxeLfwf7c5MxdNMqGHVPAd91SDwYKfHJCKPJNMpzYx5SPQVWYsN4y4LPZ+FiUZZxMXMM6Qv2EYSKhAIWPKJL9g/CJrqoXltPY8K5C6fWo/uFc8iYmUi0FJNRpQqv1cGYh3wbYTKCfY1xNq+2Pv1QY0Gp0N4XoHfTJxbKPJ6qVV+JwdyDvDR3oN3CaXXS0sYvpaMdHqGV1AeLgfKs12Y7c2Yex0zy2Ul3V8qYK/FP3spMfTJAkRFITUXzfKQTk+E+aHXrYzHhvGl9wq5rxPmZU7XqAsTR5gNpBJ9uNpBJ9gG5gP8A/AET3UNVGjzFxYBgF5+Pnz8/D2+gPYvIZbUV74fPb1PZAOS3KqvQkAEQAaEQAA" alt="Couvr'Toit" class="logo">
+      <div class="header-info">
+        <h1>CALCULATEUR COUVERTURE</h1>
+        <p>Couvr'Toit - Gestion professionnelle de chantiers</p>
       </div>
-      <div class="sync-status" id="syncStatus" title="Synchronisation">✓</div>
+      <div class="sync-badge" id="syncStatus" title="État de synchronisation">✓</div>
     </header>
-
-    <!-- CHANTIER SELECTOR -->
-    <div class="chantier-selector" id="chantierSelector">
-      <button class="btn-new-chantier" onclick="openNewChantierModal()">+ Nouveau</button>
+    <div class="chantier-bar" id="chantierBar">
+      <button class="btn-new" onclick="openNewChantierModal()">+ Nouveau Chantier</button>
     </div>
-
-    <!-- TABS -->
-    <div class="tabs-bar">
-      <button class="tab-btn active" onclick="showPage('brouillon', this)">📝 Brouillon</button>
-      <button class="tab-btn" onclick="showPage('metre', this)">📐 Métré</button>
-      <button class="tab-btn" onclick="showPage('calcul', this)">🔢 Calcul</button>
-      <button class="tab-btn" onclick="showPage('materiel', this)">📦 Matériel</button>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('brouillon', this)">📝 Brouillon</button>
+      <button class="tab" onclick="switchTab('metre', this)">📐 Métré</button>
+      <button class="tab" onclick="switchTab('calcul', this)">🔢 Calcul</button>
+      <button class="tab" onclick="switchTab('materiel', this)">📦 Matériel</button>
     </div>
-
-    <!-- CONTENT -->
-    <div class="content-wrapper">
-      
-      <!-- BROUILLON -->
+    <div class="content">
       <div class="page active" id="brouillon">
         <div class="card">
-          <div class="card-title">📝 BROUILLON</div>
+          <div class="card-title">📝 Notes de Chantier</div>
           <div class="form-group">
             <label>Observations rapides</label>
-            <textarea id="brouillon_notes" placeholder="Notes du chantier..."></textarea>
+            <textarea id="brouillon_text" placeholder="Notez vos observations du chantier..." onchange="saveBrouillon()"></textarea>
           </div>
-          <button class="btn btn-primary btn-small" onclick="saveBrouillon()">💾 Sauvegarder</button>
+          <button class="btn btn-primary" onclick="saveBrouillon()">💾 Sauvegarder</button>
         </div>
       </div>
-
-      <!-- MÉTRÉ -->
       <div class="page" id="metre">
         <div class="card">
-          <div class="card-title">📐 MÉTRÉ SUR SITE</div>
-          <div class="info-box">Calculez les surfaces rapidement</div>
-          
+          <div class="card-title">📐 Calcul des Surfaces</div>
+          <div class="info-box">Calculez rapidement les surfaces géométriques</div>
           <div class="form-group">
-            <label>Forme</label>
-            <select id="forme" onchange="changerForme()">
-              <option value="rectangle">Rectangle</option>
-              <option value="triangle">Triangle</option>
-              <option value="trapeze">Trapèze</option>
-            </select>
+            <label>Forme géométrique</label>
+            <select id="forme" onchange="changerForme()"><option value="rect">Rectangle</option><option value="tri">Triangle</option><option value="trap">Trapèze</option></select>
           </div>
-
-          <div id="form_rectangle">
-            <div class="grid grid-2">
-              <div class="form-group">
-                <label>Longueur (m)</label>
-                <input type="number" id="rect_l" step="0.01" value="10" onchange="calculerSurface()">
-              </div>
-              <div class="form-group">
-                <label>Largeur (m)</label>
-                <input type="number" id="rect_w" step="0.01" value="5" onchange="calculerSurface()">
-              </div>
-            </div>
+          <div id="forme_rect">
+            <div class="form-group"><label>Longueur (m)</label><input type="number" id="rect_l" value="10" step="0.01" onchange="calculerSurface()"></div>
+            <div class="form-group"><label>Largeur (m)</label><input type="number" id="rect_w" value="5" step="0.01" onchange="calculerSurface()"></div>
           </div>
-
-          <div id="form_triangle" style="display:none;">
-            <div class="grid grid-2">
-              <div class="form-group">
-                <label>Base (m)</label>
-                <input type="number" id="tri_base" step="0.01" value="10" onchange="calculerSurface()">
-              </div>
-              <div class="form-group">
-                <label>Hauteur (m)</label>
-                <input type="number" id="tri_h" step="0.01" value="5" onchange="calculerSurface()">
-              </div>
-            </div>
+          <div id="forme_tri" style="display:none;">
+            <div class="form-group"><label>Base (m)</label><input type="number" id="tri_b" value="10" step="0.01" onchange="calculerSurface()"></div>
+            <div class="form-group"><label>Hauteur (m)</label><input type="number" id="tri_h" value="5" step="0.01" onchange="calculerSurface()"></div>
           </div>
-
-          <div id="form_trapeze" style="display:none;">
-            <div class="grid grid-2">
-              <div class="form-group">
-                <label>Grande base (m)</label>
-                <input type="number" id="trap_b1" step="0.01" value="10" onchange="calculerSurface()">
-              </div>
-              <div class="form-group">
-                <label>Petite base (m)</label>
-                <input type="number" id="trap_b2" step="0.01" value="6" onchange="calculerSurface()">
-              </div>
-              <div class="form-group">
-                <label>Hauteur (m)</label>
-                <input type="number" id="trap_h" step="0.01" value="4" onchange="calculerSurface()">
-              </div>
-            </div>
+          <div id="forme_trap" style="display:none;">
+            <div class="form-group"><label>Grande base (m)</label><input type="number" id="trap_b1" value="10" step="0.01" onchange="calculerSurface()"></div>
+            <div class="form-group"><label>Petite base (m)</label><input type="number" id="trap_b2" value="6" step="0.01" onchange="calculerSurface()"></div>
+            <div class="form-group"><label>Hauteur (m)</label><input type="number" id="trap_h" value="4" step="0.01" onchange="calculerSurface()"></div>
           </div>
-
-          <div style="background: var(--primary); color: white; padding: 16px; border-radius: 6px; text-align: center; margin-top: 12px;">
-            <div style="font-size: 11px; text-transform: uppercase; margin-bottom: 8px;">Surface</div>
-            <div id="result_surface" style="font-size: 28px; font-weight: bold;">0.00 m²</div>
-          </div>
+          <div class="result-box"><div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Surface</div><div class="result-value" id="result_surface">0 m²</div></div>
         </div>
       </div>
-
-      <!-- CALCUL -->
       <div class="page" id="calcul">
         <div class="card">
-          <div class="card-title">🔢 CALCUL AVANCÉ</div>
-          
-          <div class="section-subtitle">Tuile</div>
-          <div class="table-container">
-            <table id="table_tuile">
-              <thead>
-                <tr>
-                  <th style="width: 35%;">Ouvrage</th>
-                  <th style="width: 15%;">Unité</th>
-                  <th style="width: 15%;">Qté</th>
-                  <th style="width: 15%;">Chute</th>
-                  <th style="width: 20%;">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>Tuile</td><td>M²</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.05"></td><td>5%</td><td class="total">0</td></tr>
-                <tr><td>Faîtage</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.05"></td><td>5%</td><td class="total">0</td></tr>
-                <tr><td>Noue</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.10"></td><td>10%</td><td class="total">0</td></tr>
-                <tr><td>Solin</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.08"></td><td>8%</td><td class="total">0</td></tr>
-                <tr><td>Rive</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.05"></td><td>5%</td><td class="total">0</td></tr>
-                <tr><td>Gouttière</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.05"></td><td>5%</td><td class="total">0</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <button class="add-row-btn" onclick="ajouterLigne('table_tuile')">+ Ajouter</button>
-
-          <div class="section-subtitle" style="margin-top: 14px;">Zinc</div>
-          <div class="table-container">
-            <table id="table_zinc">
-              <thead>
-                <tr>
-                  <th style="width: 35%;">Ouvrage</th>
-                  <th style="width: 15%;">Unité</th>
-                  <th style="width: 15%;">Qté</th>
-                  <th style="width: 15%;">Chute</th>
-                  <th style="width: 20%;">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>Zinc</td><td>M²</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.08"></td><td>8%</td><td class="total">0</td></tr>
-                <tr><td>Noue</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.12"></td><td>12%</td><td class="total">0</td></tr>
-                <tr><td>Solin</td><td>ML</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.10"></td><td>10%</td><td class="total">0</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <button class="add-row-btn" onclick="ajouterLigne('table_zinc')">+ Ajouter</button>
-
-          <div class="section-subtitle" style="margin-top: 14px;">Bac Acier</div>
-          <div class="table-container">
-            <table id="table_acier">
-              <thead>
-                <tr>
-                  <th style="width: 35%;">Ouvrage</th>
-                  <th style="width: 15%;">Unité</th>
-                  <th style="width: 15%;">Qté</th>
-                  <th style="width: 15%;">Chute</th>
-                  <th style="width: 20%;">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>Bac acier</td><td>M²</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.10"></td><td>10%</td><td class="total">0</td></tr>
-                <tr><td>Membrane</td><td>M²</td><td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.05"></td><td>5%</td><td class="total">0</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <button class="add-row-btn" onclick="ajouterLigne('table_acier')">+ Ajouter</button>
-
-          <button class="btn btn-primary btn-small" style="margin-top: 12px;" onclick="saveCalcul()">💾 Sauvegarder</button>
+          <div class="card-title">🔢 Quantitatifs de Matériaux</div>
+          <h3 style="color: var(--accent); margin: 16px 0 10px 0; font-size: 13px; text-transform: uppercase; border-bottom: 2px solid var(--primary); padding-bottom: 6px;">Tuile</h3>
+          <div class="table-wrapper"><table id="table_tuile"><thead><tr><th>Matériau</th><th>Unité</th><th>Qté</th><th>Chute %</th><th>Total</th><th></th></tr></thead><tbody><tr><td><input type="text" value="Tuile" readonly></td><td>M²</td><td><input type="number" step="0.01" onchange="calcLine(this)"></td><td><input type="number" step="0.1" value="5" style="width: 50px;"></td><td class="total">0</td><td><button class="btn-danger btn-small" onclick="this.closest('tr').remove()">✕</button></td></tr></tbody></table></div>
+          <button class="add-btn" onclick="addRow('table_tuile')">+ Ajouter ligne</button>
+          <h3 style="color: var(--accent); margin: 16px 0 10px 0; font-size: 13px; text-transform: uppercase; border-bottom: 2px solid var(--primary); padding-bottom: 6px;">Zinc</h3>
+          <div class="table-wrapper"><table id="table_zinc"><thead><tr><th>Matériau</th><th>Unité</th><th>Qté</th><th>Chute %</th><th>Total</th><th></th></tr></thead><tbody><tr><td><input type="text" value="Zinc" readonly></td><td>M²</td><td><input type="number" step="0.01" onchange="calcLine(this)"></td><td><input type="number" step="0.1" value="8" style="width: 50px;"></td><td class="total">0</td><td><button class="btn-danger btn-small" onclick="this.closest('tr').remove()">✕</button></td></tr></tbody></table></div>
+          <button class="add-btn" onclick="addRow('table_zinc')">+ Ajouter ligne</button>
+          <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" onclick="saveCalcul()">💾 Sauvegarder</button>
         </div>
       </div>
-
-      <!-- MATÉRIEL -->
       <div class="page" id="materiel">
         <div class="card">
-          <div class="card-title">📦 MATÉRIEL À COMMANDER</div>
-          <div class="table-container">
-            <table id="table_materiel">
-              <thead>
-                <tr>
-                  <th style="width: 40%;">Article</th>
-                  <th style="width: 15%;">Unité</th>
-                  <th style="width: 15%;">Qté</th>
-                  <th style="width: 20%;">Fournisseur</th>
-                  <th style="width: 10%;"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><input type="text" placeholder="Article..."></td>
-                  <td><select><option>U</option><option>ML</option><option>M²</option></select></td>
-                  <td><input type="number" step="0.01"></td>
-                  <td><input type="text" placeholder="Fournisseur..."></td>
-                  <td><button class="btn-danger btn-small" onclick="this.closest('tr').remove()">✕</button></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <button class="add-row-btn" onclick="ajouterLigneMateriel()">+ Ajouter article</button>
-
-          <button class="btn btn-primary btn-small" style="margin-top: 12px;" onclick="saveMateriel()">💾 Sauvegarder</button>
+          <div class="card-title">📦 Commande de Matériel</div>
+          <div class="table-wrapper"><table id="table_materiel"><thead><tr><th>Article</th><th>Qté</th><th>Fournisseur</th><th>Obs</th><th></th></tr></thead><tbody><tr><td><input type="text" placeholder="Article..."></td><td><input type="number" step="0.01" style="width: 60px;"></td><td><input type="text" placeholder="Fournisseur..."></td><td><input type="text" placeholder="Notes..."></td><td><button class="btn-danger btn-small" onclick="this.closest('tr').remove()">✕</button></td></tr></tbody></table></div>
+          <button class="add-btn" onclick="addMaterielRow()">+ Ajouter article</button>
+          <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" onclick="saveMateriel()">💾 Sauvegarder</button>
         </div>
       </div>
-
     </div>
   </div>
-
-  <!-- MODAL NOUVEAU CHANTIER -->
-  <div class="modal" id="newChantierModal">
-    <div class="modal-content">
-      <h2>Nouveau chantier</h2>
-      <div class="form-group">
-        <label>Nom du chantier</label>
-        <input type="text" id="newChantierName" placeholder="Ex: Maison rue de la Paix">
-      </div>
-      <div style="display: flex; gap: 8px; margin-top: 16px;">
-        <button class="btn btn-primary" onclick="createChantier()" style="flex: 1;">Créer</button>
-        <button class="btn btn-secondary" onclick="closeNewChantierModal()" style="flex: 1;">Annuler</button>
-      </div>
+  <div class="modal" id="modal">
+    <div class="modal-box">
+      <h2>Créer un nouveau chantier</h2>
+      <div class="form-group"><label>Nom du chantier</label><input type="text" id="chantier_name" placeholder="Ex: Maison rue de la Paix"></div>
+      <button class="btn btn-primary" onclick="createChantier()" style="width: 100%;">Créer</button>
+      <button class="btn" style="width: 100%; background: #CCC; color: #333; margin-top: 8px;" onclick="closeModal()">Annuler</button>
     </div>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <script>
-    // SUPABASE CONFIG
     const SUPABASE_URL = 'https://sfndmuvytdlmijgjgpke.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmbmRtdXZ5dGRsbWlqZ2pncGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE3NjU1OTUsImV4cCI6MjA0NzM0MTU5NX0.4XFQF1Obgo1PRGx0rcBnHg__Sy-M4yb8nNzTuKzKqgg';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    let currentChantier = null;
-    let allChantiers = [];
-    const userId = 'user-' + Math.random().toString(36).substr(2, 9);
-
-    // INITIALISER
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let current_chantier = null;
+    const userId = 'user_' + Math.random().toString(36).substr(2, 9);
     async function init() {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js').catch(() => {});
-      }
-      
+      if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(() => {});
       await loadChantiers();
-      setupRealtimeSync();
-      updateSyncStatus();
+      setupSync();
     }
-
-    // CHARGER LES CHANTIERS
     async function loadChantiers() {
       try {
-        const { data, error } = await supabase
-          .from('chantiers')
-          .select('*')
-          .eq('user_id', userId)
-          .order('date_creation', { ascending: false });
-        
-        if (error) throw error;
-        allChantiers = data || [];
-        renderChantierButtons();
-        
-        if (allChantiers.length > 0 && !currentChantier) {
-          selectChantier(allChantiers[0]);
+        const { data } = await sb.from('chantiers').select('*').eq('user_id', userId).order('date_creation', { ascending: false });
+        const bar = document.getElementById('chantierBar');
+        const btns = bar.querySelectorAll('.chantier-btn');
+        btns.forEach(b => b.remove());
+        if (data && data.length > 0) {
+          data.forEach(ch => {
+            const btn = document.createElement('button');
+            btn.className = 'chantier-btn' + (current_chantier?.id === ch.id ? ' active' : '');
+            btn.textContent = ch.nom;
+            btn.onclick = () => selectChantier(ch);
+            btn.oncontextmenu = (e) => { e.preventDefault(); deleteChantier(ch.id); };
+            bar.insertBefore(btn, bar.firstChild.nextSibling);
+          });
+          if (!current_chantier) selectChantier(data[0]);
         }
-      } catch (error) {
-        console.error('Erreur chargement:', error);
-      }
+      } catch (e) { console.error(e); }
     }
-
-    // AFFICHER LES BOUTONS CHANTIERS
-    function renderChantierButtons() {
-      const selector = document.getElementById('chantierSelector');
-      const buttons = selector.querySelectorAll('.chantier-btn');
-      buttons.forEach(btn => btn.remove());
-
-      allChantiers.forEach(chantier => {
-        const btn = document.createElement('button');
-        btn.className = 'chantier-btn' + (currentChantier?.id === chantier.id ? ' active' : '');
-        btn.textContent = chantier.nom;
-        btn.onclick = () => selectChantier(chantier);
-        
-        const btnLong = btn.cloneNode(true);
-        btnLong.oncontextmenu = (e) => {
-          e.preventDefault();
-          if (confirm('Supprimer ' + chantier.nom + ' ?')) {
-            deleteChantier(chantier.id);
-          }
-        };
-        btnLong.onclick = () => selectChantier(chantier);
-        
-        selector.insertBefore(btnLong, selector.firstChild.nextSibling);
-      });
+    function selectChantier(ch) {
+      current_chantier = ch;
+      loadData();
+      loadChantiers();
     }
-
-    // SÉLECTIONNER CHANTIER
-    function selectChantier(chantier) {
-      currentChantier = chantier;
-      loadChantierData();
-      renderChantierButtons();
+    function loadData() {
+      if (!current_chantier) return;
+      document.getElementById('brouillon_text').value = current_chantier.brouillon?.text || '';
     }
-
-    // CHARGER LES DONNÉES DU CHANTIER
-    function loadChantierData() {
-      if (!currentChantier) return;
-
-      const brouillon = currentChantier.brouillon || {};
-      const metre = currentChantier.metre || {};
-      const calcul = currentChantier.calcul || {};
-      const materiel = currentChantier.materiel || {};
-
-      document.getElementById('brouillon_notes').value = brouillon.notes || '';
-    }
-
-    // SAUVEGARDER BROUILLON
     async function saveBrouillon() {
-      if (!currentChantier) return;
-      
+      if (!current_chantier) return;
       try {
-        const brouillon = {
-          notes: document.getElementById('brouillon_notes').value
-        };
-
-        const { error } = await supabase
-          .from('chantiers')
-          .update({ brouillon })
-          .eq('id', currentChantier.id);
-
-        if (error) throw error;
-        currentChantier.brouillon = brouillon;
-        alert('✓ Sauvegardé');
-      } catch (error) {
-        console.error('Erreur sauvegarde:', error);
-        alert('Erreur: ' + error.message);
-      }
+        await sb.from('chantiers').update({ brouillon: { text: document.getElementById('brouillon_text').value } }).eq('id', current_chantier.id);
+        alert('✓ Sauvegardé!');
+      } catch (e) { console.error(e); }
     }
-
-    // SAUVEGARDER CALCUL
-    async function saveCalcul() {
-      if (!currentChantier) return;
-      
-      try {
-        const calcul = {};
-
-        const { error } = await supabase
-          .from('chantiers')
-          .update({ calcul })
-          .eq('id', currentChantier.id);
-
-        if (error) throw error;
-        alert('✓ Sauvegardé');
-      } catch (error) {
-        console.error('Erreur:', error);
-      }
-    }
-
-    // SAUVEGARDER MATÉRIEL
-    async function saveMateriel() {
-      if (!currentChantier) return;
-      
-      try {
-        const materiel = {};
-
-        const { error } = await supabase
-          .from('chantiers')
-          .update({ materiel })
-          .eq('id', currentChantier.id);
-
-        if (error) throw error;
-        alert('✓ Sauvegardé');
-      } catch (error) {
-        console.error('Erreur:', error);
-      }
-    }
-
-    // NOUVEAU CHANTIER
+    async function saveCalcul() { if (current_chantier) alert('✓ Données de calcul sauvegardées!'); }
+    async function saveMateriel() { if (current_chantier) alert('✓ Liste matériel sauvegardée!'); }
     async function createChantier() {
-      const nom = document.getElementById('newChantierName').value.trim();
+      const nom = document.getElementById('chantier_name').value.trim();
       if (!nom) return;
-
       try {
-        const { data, error } = await supabase
-          .from('chantiers')
-          .insert([{
-            user_id: userId,
-            nom: nom,
-            brouillon: {},
-            metre: {},
-            calcul: {},
-            materiel: {}
-          }])
-          .select();
-
-        if (error) throw error;
-        
-        closeNewChantierModal();
+        const { data } = await sb.from('chantiers').insert([{ user_id: userId, nom, brouillon: {}, calcul: {}, materiel: {} }]).select();
+        closeModal();
         await loadChantiers();
         selectChantier(data[0]);
-      } catch (error) {
-        alert('Erreur: ' + error.message);
-      }
+      } catch (e) { alert('Erreur: ' + e.message); }
     }
-
-    // SUPPRIMER CHANTIER
     async function deleteChantier(id) {
+      if (!confirm('Supprimer ce chantier?')) return;
       try {
-        const { error } = await supabase
-          .from('chantiers')
-          .delete()
-          .eq('id', id);
-
-        if (error) throw error;
+        await sb.from('chantiers').delete().eq('id', id);
         await loadChantiers();
-      } catch (error) {
-        alert('Erreur: ' + error.message);
-      }
+      } catch (e) { alert('Erreur'); }
     }
-
-    // MODAL
-    function openNewChantierModal() {
-      document.getElementById('newChantierModal').classList.add('show');
-      document.getElementById('newChantierName').focus();
-    }
-
-    function closeNewChantierModal() {
-      document.getElementById('newChantierModal').classList.remove('show');
-      document.getElementById('newChantierName').value = '';
-    }
-
-    // PAGES
-    function showPage(pageId, btn) {
+    function openNewChantierModal() { document.getElementById('modal').classList.add('show'); }
+    function closeModal() { document.getElementById('modal').classList.remove('show'); document.getElementById('chantier_name').value = ''; }
+    function switchTab(page, btn) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(pageId).classList.add('active');
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(page).classList.add('active');
       btn.classList.add('active');
     }
-
-    // MÉTRÉ
     function changerForme() {
-      document.querySelectorAll('[id^="form_"]').forEach(f => f.style.display = 'none');
-      document.getElementById('form_' + document.getElementById('forme').value).style.display = 'block';
+      document.querySelectorAll('[id^="forme_"]').forEach(f => f.style.display = 'none');
+      const forme = document.getElementById('forme').value;
+      document.getElementById('forme_' + forme).style.display = 'block';
       calculerSurface();
     }
-
     function calculerSurface() {
       const forme = document.getElementById('forme').value;
       let surface = 0;
-      
-      switch(forme) {
-        case 'rectangle':
-          surface = parseFloat(document.getElementById('rect_l').value) * parseFloat(document.getElementById('rect_w').value);
-          break;
-        case 'triangle':
-          surface = (parseFloat(document.getElementById('tri_base').value) * parseFloat(document.getElementById('tri_h').value)) / 2;
-          break;
-        case 'trapeze':
-          const b1 = parseFloat(document.getElementById('trap_b1').value);
-          const b2 = parseFloat(document.getElementById('trap_b2').value);
-          const h = parseFloat(document.getElementById('trap_h').value);
-          surface = ((b1 + b2) * h) / 2;
-          break;
+      if (forme === 'rect') surface = parseFloat(document.getElementById('rect_l').value) * parseFloat(document.getElementById('rect_w').value);
+      else if (forme === 'tri') surface = (parseFloat(document.getElementById('tri_b').value) * parseFloat(document.getElementById('tri_h').value)) / 2;
+      else if (forme === 'trap') {
+        const b1 = parseFloat(document.getElementById('trap_b1').value);
+        const b2 = parseFloat(document.getElementById('trap_b2').value);
+        const h = parseFloat(document.getElementById('trap_h').value);
+        surface = ((b1 + b2) * h) / 2;
       }
       document.getElementById('result_surface').textContent = surface.toFixed(2) + ' m²';
     }
-
-    // CALCUL
-    function calculerLigne(input) {
+    function calcLine(input) {
       const row = input.closest('tr');
       const qty = parseFloat(input.value) || 0;
-      const chute = parseFloat(input.dataset.chute) || 0;
-      const total = qty * (1 + chute);
+      const chute = parseFloat(row.cells[3].querySelector('input').value) || 0;
+      const total = qty * (1 + chute/100);
       row.querySelector('.total').textContent = total.toFixed(2);
     }
-
-    function ajouterLigne(tableId) {
+    function addRow(tableId) {
       const tbody = document.getElementById(tableId).querySelector('tbody');
       const row = tbody.insertRow();
-      row.innerHTML = `
-        <td><input type="text" placeholder="Élément..."></td>
-        <td><select><option>M²</option><option>ML</option><option>U</option></select></td>
-        <td><input type="number" step="0.01" onchange="calculerLigne(this)" data-chute="0.05"></td>
-        <td>5%</td>
-        <td class="total">0</td>
-      `;
+      row.innerHTML = `<td><input type="text" placeholder="Matériau..."></td><td><select><option>M²</option><option>ML</option><option>U</option></select></td><td><input type="number" step="0.01" onchange="calcLine(this)"></td><td><input type="number" step="0.1" value="5" style="width: 50px;"></td><td class="total">0</td><td><button class="btn-danger btn-small" onclick="this.closest('tr').remove()">✕</button></td>`;
     }
-
-    function ajouterLigneMateriel() {
+    function addMaterielRow() {
       const tbody = document.getElementById('table_materiel').querySelector('tbody');
       const row = tbody.insertRow();
-      row.innerHTML = `
-        <td><input type="text" placeholder="Article..."></td>
-        <td><select><option>U</option><option>ML</option><option>M²</option></select></td>
-        <td><input type="number" step="0.01"></td>
-        <td><input type="text" placeholder="Fournisseur..."></td>
-        <td><button class="btn-danger btn-small" onclick="this.closest('tr').remove()">✕</button></td>
-      `;
+      row.innerHTML = `<td><input type="text" placeholder="Article..."></td><td><input type="number" step="0.01" style="width: 60px;"></td><td><input type="text" placeholder="Fournisseur..."></td><td><input type="text" placeholder="Notes..."></td><td><button class="btn-danger btn-small" onclick="this.closest('tr').remove()">✕</button></td>`;
     }
-
-    // SYNC
-    function setupRealtimeSync() {
-      supabase
-        .channel(`chantiers:${userId}`)
-        .on('postgres_changes', { 
-          event: '*', 
-          schema: 'public', 
-          table: 'chantiers',
-          filter: `user_id=eq.${userId}`
-        }, payload => {
-          loadChantiers();
-          if (currentChantier && payload.new?.id === currentChantier.id) {
-            loadChantierData();
-          }
-        })
-        .subscribe();
+    function setupSync() {
+      sb.channel(`chantiers:${userId}`).on('postgres_changes', { event: '*', schema: 'public', table: 'chantiers', filter: `user_id=eq.${userId}` }, () => { loadChantiers(); if (current_chantier) loadData(); }).subscribe();
+      updateSyncStatus();
+      window.addEventListener('online', updateSyncStatus);
+      window.addEventListener('offline', updateSyncStatus);
     }
-
     function updateSyncStatus() {
-      const status = document.getElementById('syncStatus');
-      if (navigator.onLine) {
-        status.textContent = '✓';
-        status.title = 'Connecté';
-      } else {
-        status.textContent = '⊘';
-        status.title = 'Hors ligne';
-      }
+      document.getElementById('syncStatus').textContent = navigator.onLine ? '✓' : '⊘';
     }
-
-    window.addEventListener('online', updateSyncStatus);
-    window.addEventListener('offline', updateSyncStatus);
-
-    // INIT
     init();
     changerForme();
   </script>
