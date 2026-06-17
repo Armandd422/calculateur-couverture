@@ -1,5 +1,5 @@
 // Couvr'Toit Métré - Service Worker v6
-const CACHE='couvrtoit-v8';
+const CACHE='couvrtoit-v9';
 const ASSETS=[
   './','./index.html','./manifest.json',
   './logo.png','./icon-192.png','./icon-512.png',
