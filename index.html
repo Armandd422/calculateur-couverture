@@ -160,6 +160,14 @@ td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-n
 .grand-total{background:var(--noir);color:#fff;border-radius:var(--r);padding:15px 18px;display:flex;justify-content:space-between;align-items:center;margin-top:6px}
 .grand-total .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.6px;opacity:.7;font-weight:700}
 .grand-total .val{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.recap-card{background:#fff;border:1px solid var(--bordure);border-radius:var(--r);margin-top:13px;overflow:hidden}
+.recap-card .rc-head{background:var(--noir);color:#fff;padding:11px 14px;font-weight:800;font-size:13px;display:flex;align-items:center;gap:8px}
+.recap-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #EEF0F2;font-size:14px}
+.recap-row:last-child{border-bottom:none}
+.recap-row .rn{font-weight:600;color:var(--noir);flex:1}
+.recap-row .rc{font-size:11px;color:var(--gris-clair);margin-left:8px}
+.recap-row .rv{font-weight:800;color:var(--rouge);font-variant-numeric:tabular-nums;white-space:nowrap}
+.recap-row .rv .ru{font-size:11px;color:var(--gris);font-weight:600;margin-left:3px}
 
 /* ===== EMPTY ===== */
 .empty{text-align:center;padding:50px 20px;color:var(--gris-clair)}
@@ -306,6 +314,7 @@ td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-n
         </table>
       </div>
       <div class="grand-total"><span class="lbl">Postes chiffrés</span><span class="val" id="calcCount">0</span></div>
+      <div id="calcRecap"></div>
     </div>
 
     <!-- ===== MATÉRIEL ===== -->
@@ -802,7 +811,7 @@ function ouvrageCard(o,t){
     <div class="ouv-body">
       <div class="mesures"></div>
       <div class="add-mesure">
-        <input type="text" inputmode="decimal" placeholder="ex: 3.5 ou 3*5" onkeydown="if(event.key==='Enter')addMesure(this,'${t.id}','${o.id}')">
+        <input type="text" inputmode="text" autocomplete="off" placeholder="ex: 3.5 ou 3*5" onkeydown="if(event.key==='Enter')addMesure(this,'${t.id}','${o.id}')">
         <button class="btn btn-primary" onclick="addMesure(this.previousElementSibling,'${t.id}','${o.id}')">+</button>
       </div>
       <div class="ouv-sum"><span>Total ${o.nom}</span><span><b>${fmt(total)}</b> ${o.unite}</span></div>
@@ -917,8 +926,37 @@ function renderCalc(){
     }
   });
   $('calcCount').textContent=cur.data.calcul.filter(r=>r.type==='row').length;
+  renderCalcRecap();
   updateMeta();
 }
+function renderCalcRecap(){
+  const box=$('calcRecap');if(!box)return;
+  // regrouper par nom EXACT (insensible casse/espaces) + même unité
+  const map={};
+  cur.data.calcul.forEach(r=>{
+    if(r.type!=='row')return;
+    const nom=(r.nom||'').trim();
+    if(!nom)return;
+    const val=evalFormule(r.qte);
+    if(!val||!isFinite(val))return;
+    const key=nom.toLowerCase()+'|'+(r.unite||'').toLowerCase();
+    if(!map[key]){map[key]={nom,unite:r.unite||'',total:0,count:0}}
+    map[key].total+=val;map[key].count++;
+  });
+  // ne garder que les ouvrages présents au moins 2 fois (vrais cumuls) OU tout afficher ? 
+  // -> on affiche tout ce qui a une valeur, mais on signale les regroupements
+  const items=Object.values(map).filter(m=>m.total>0);
+  if(!items.length){box.innerHTML='';return}
+  items.sort((a,b)=>b.total-a.total);
+  let html='<div class="recap-card"><div class="rc-head"><span>📊</span>Totaux par ouvrage</div>';
+  items.forEach(m=>{
+    const multi=m.count>1?`<span class="rc">(${m.count} postes cumulés)</span>`:'';
+    html+=`<div class="recap-row"><span class="rn">${escapeHtml(m.nom)}${multi}</span><span class="rv">${fmt(m.total)}<span class="ru">${escapeHtml(m.unite)}</span></span></div>`;
+  });
+  html+='</div>';
+  box.innerHTML=html;
+}
+function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function calcShowTotal(inp){
   const span=inp.parentElement.querySelector('.c-res');
   const v=evalFormule(inp.value);
@@ -1148,11 +1186,10 @@ function renderSurf(){
   $('surfTotal').textContent=fmt(tot)+' m²';
 }
 function surfResult(s){
-  const F=FORMES[s.forme];if(!F)return 0;
-  const v={};let ok=true;
-  F.champs.forEach(([k])=>{v[k]=Number(s.vals?.[k])||0;if(!v[k])ok=false});
-  if(!ok)return 0;
-  return F.calc(v)*(Number(s.mult)||1);
+  const u=surfUnit(s);
+  if(!u)return 0;
+  const m=evalFormule(s.mult);
+  return u*((isNaN(m)||m<=0)?1:m);
 }
 function surfCard(s){
   const F=FORMES[s.forme];
@@ -1160,8 +1197,9 @@ function surfCard(s){
   let opts='';Object.entries(FORMES).forEach(([k,v])=>{opts+=`<option value="${k}" ${k===s.forme?'selected':''}>${v.nom}</option>`});
   let inputs='';
   F.champs.forEach(([k,lbl])=>{
-    inputs+=`<div class="fg" style="margin:0"><label>${lbl} (m)</label><input type="number" inputmode="decimal" step="0.01" value="${s.vals?.[k]??''}" oninput="surfSet('${s.id}','${k}',this.value)"></div>`;
+    inputs+=`<div class="fg" style="margin:0"><label>${lbl} (m)</label><input type="text" inputmode="text" autocomplete="off" class="sf-in" data-k="${k}" value="${s.vals?.[k]??''}" placeholder="ex: 4 ou 2*3" oninput="surfSet('${s.id}','${k}',this.value)"></div>`;
   });
+  const unit=surfUnit(s);
   const res=surfResult(s);
   card.innerHTML=`
     <div class="surf-head">
@@ -1172,15 +1210,22 @@ function surfCard(s){
     <div class="surf-body">
       <div class="surf-formule">Formule : ${F.f}</div>
       <div class="surf-inputs" style="grid-template-columns:repeat(${Math.min(F.champs.length,2)},1fr)">${inputs}</div>
-      <div class="fg" style="margin-bottom:10px"><label>Nom / repère (optionnel)</label><input value="${s.nom||''}" placeholder="ex: Pan sud, Versant gauche" oninput="surfSet2('${s.id}','nom',this.value)"></div>
-      <div class="surf-res"><span class="l">Surface unitaire</span><span class="v">${fmt(F.calc(Object.fromEntries(F.champs.map(([k])=>[k,Number(s.vals?.[k])||0])))) } m²</span></div>
+      <div class="fg" style="margin-bottom:10px"><label>Nom / repère (optionnel)</label><input type="text" value="${(s.nom||'').replace(/"/g,'&quot;')}" placeholder="ex: Pan sud, Versant gauche" oninput="surfSet2('${s.id}','nom',this.value)"></div>
+      <div class="surf-res"><span class="l">Surface unitaire</span><span class="v sf-unit">${fmt(unit)} m²</span></div>
       <div class="surf-mult">
-        <label>× Quantité identique :</label>
-        <input type="number" inputmode="numeric" step="1" min="1" value="${s.mult||1}" oninput="surfSet2('${s.id}','mult',this.value)">
-        <span style="flex:1;text-align:right;font-weight:800;color:var(--rouge);font-size:17px">= ${fmt(res)} m²</span>
+        <label>× Quantité :</label>
+        <input type="text" inputmode="numeric" class="sf-mult" value="${s.mult||1}" oninput="surfSet2('${s.id}','mult',this.value)">
+        <span style="flex:1;text-align:right;font-weight:800;color:var(--rouge);font-size:17px" class="sf-tot">= ${fmt(res)} m²</span>
       </div>
     </div>`;
   return card;
+}
+function surfUnit(s){
+  const F=FORMES[s.forme];if(!F)return 0;
+  const v={};let ok=true;
+  F.champs.forEach(([k])=>{const x=evalFormule(s.vals?.[k]);v[k]=isNaN(x)?0:x;if(!v[k])ok=false});
+  if(!ok)return 0;
+  return F.calc(v);
 }
 function addSurf(){
   if(!cur.data.surfaces)cur.data.surfaces=[];
@@ -1188,14 +1233,21 @@ function addSurf(){
   renderSurf();markDirty();
 }
 function surfForme(id,forme){const s=cur.data.surfaces.find(x=>x.id===id);if(s){s.forme=forme;s.vals={};renderSurf();markDirty()}}
-function surfSet(id,k,val){const s=cur.data.surfaces.find(x=>x.id===id);if(s){if(!s.vals)s.vals={};s.vals[k]=val;refreshSurf(id);markDirty()}}
-function surfSet2(id,k,val){const s=cur.data.surfaces.find(x=>x.id===id);if(s){s[k]=val;refreshSurf(id);markDirty()}}
-function refreshSurf(id){
+function surfSet(id,k,val){const s=cur.data.surfaces.find(x=>x.id===id);if(s){if(!s.vals)s.vals={};s.vals[k]=val;updateSurfTotals(id);markDirty()}}
+function surfSet2(id,k,val){const s=cur.data.surfaces.find(x=>x.id===id);if(s){s[k]=val;updateSurfTotals(id);markDirty()}}
+function updateSurfTotals(id){
+  // met à jour UNIQUEMENT les chiffres affichés, sans reconstruire les champs (garde le focus)
   const s=cur.data.surfaces.find(x=>x.id===id);
-  const old=document.querySelector(`.surf-card[data-id="${id}"]`);
-  if(old&&s){const nc=surfCard(s);old.replaceWith(nc);}
-  let tot=0;cur.data.surfaces.forEach(s=>tot+=surfResult(s));$('surfTotal').textContent=fmt(tot)+' m²';
+  const card=document.querySelector(`.surf-card[data-id="${id}"]`);
+  if(s&&card){
+    const u=surfUnit(s);
+    const r=surfResult(s);
+    const eu=card.querySelector('.sf-unit');if(eu)eu.textContent=fmt(u)+' m²';
+    const et=card.querySelector('.sf-tot');if(et)et.textContent='= '+fmt(r)+' m²';
+  }
+  let tot=0;cur.data.surfaces.forEach(x=>tot+=surfResult(x));$('surfTotal').textContent=fmt(tot)+' m²';
 }
+function refreshSurf(id){updateSurfTotals(id)}
 function surfDel(id){cur.data.surfaces=cur.data.surfaces.filter(s=>s.id!==id);renderSurf();markDirty()}
 
 /* service worker */
