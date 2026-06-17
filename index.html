@@ -152,6 +152,8 @@ tbody tr.total-row td{background:#FEF2F2;font-weight:800;color:var(--rouge-fonce
 td input,td select{padding:7px 8px;font-size:13.5px;border:1px solid transparent;background:transparent;border-radius:5px}
 td input:focus,td select:focus{background:#fff;border-color:var(--rouge);box-shadow:none}
 td input.num{text-align:right;font-variant-numeric:tabular-nums}
+td .c-qte{width:calc(100% - 4px)}
+.c-res{display:block;font-size:11px;color:var(--rouge);font-weight:800;text-align:right;padding:0 8px 4px;font-variant-numeric:tabular-nums;min-height:13px}
 td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-numeric:tabular-nums;white-space:nowrap;padding-right:11px}
 .row-del{width:30px;height:30px;border:none;background:transparent;color:var(--gris-clair);font-size:16px;cursor:pointer;border-radius:6px}
 .row-del:active{background:#FEE2E2;color:var(--rouge)}
@@ -298,7 +300,7 @@ td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-n
       </div>
       <div class="tbl-wrap">
         <table id="calcTable">
-          <thead><tr><th style="width:38%">Ouvrage</th><th style="width:13%">Unité</th><th style="width:16%">Qté</th><th style="width:13%">Chute</th><th style="width:16%">Total</th><th style="width:4%"></th></tr></thead>
+          <thead><tr><th style="width:46%">Ouvrage</th><th style="width:16%">Unité</th><th style="width:30%">Quantité</th><th style="width:8%"></th></tr></thead>
           <tbody id="calcBody"></tbody>
         </table>
       </div>
@@ -438,90 +440,89 @@ const TYPES={
 };
 const CATALOGUE={
   tuile:[
-    {n:'Couverture tuile',u:'m²',e:'🟧'},
-    {n:'Écran sous-toiture',u:'m²',e:'📜'},
+    {n:'Couverture tuile',u:'m²',e:'🟧',def:1},
+    {n:'Faîtage',u:'ml',e:'🔺',def:1},
+    {n:'Faîtage monopente',u:'ml',e:'📏',def:1},
+    {n:'Arêtier',u:'ml',e:'📐',def:1},
+    {n:'Noue',u:'ml',e:'〽️',def:1},
+    {n:'Rive',u:'ml',e:'📋',def:1},
+    {n:'Solin',u:'ml',e:'🧱',def:1},
+    {n:'Solin de cheminée',u:'ml',e:'🏛️',def:1},
+    {n:'Cheminée (habillage)',u:'u',e:'🏠',def:1},
+    {n:'Fenêtre de toit',u:'u',e:'🪟',def:1},
+    {n:'Chatière',u:'u',e:'🔲',def:1},
+    {n:'Gouttière',u:'ml',e:'🌊',def:1},
+    {n:'Bande d\'égout',u:'ml',e:'➰',def:1},
+    {n:'Descente EP',u:'ml',e:'🚰',def:1},
     {n:'Contre-lattage',u:'ml',e:'➖'},
     {n:'Liteaunage',u:'m²',e:'⬛'},
-    {n:'Faîtage',u:'ml',e:'🔺'},
-    {n:'Arêtier',u:'ml',e:'📐'},
-    {n:'Faîtage monopente',u:'ml',e:'📏'},
-    {n:'Noue',u:'ml',e:'〽️'},
-    {n:'Rive',u:'ml',e:'📋'},
-    {n:'Solin',u:'ml',e:'🧱'},
-    {n:'Solin de cheminée',u:'ml',e:'🏛️'},
-    {n:'Chatière',u:'u',e:'🔲'},
-    {n:'Gouttière',u:'ml',e:'🌊'},
-    {n:'Bande d\'égout',u:'ml',e:'➰'},
     {n:'Entablement',u:'ml',e:'📦'},
     {n:'Chéneau',u:'ml',e:'💧'},
-    {n:'Descente EP',u:'ml',e:'🚰'},
-    {n:'Fenêtre de toit',u:'u',e:'🪟'},
     {n:'Couvertine',u:'ml',e:'🎩'},
     {n:'Isolation',u:'m²',e:'🧊'},
     {n:'Jouée en zinc',u:'ml',e:'🔧'}
   ],
   zinc:[
-    {n:'Couverture zinc',u:'m²',e:'⬜'},
+    {n:'Couverture zinc',u:'m²',e:'⬜',def:1},
+    {n:'Faîtage / double pli',u:'ml',e:'🔺',def:1},
+    {n:'Arêtier',u:'ml',e:'📐',def:1},
+    {n:'Joint debout',u:'ml',e:'📏',def:1},
+    {n:'Noue',u:'ml',e:'〽️',def:1},
+    {n:'Rive / pince',u:'ml',e:'📋',def:1},
+    {n:'Solin',u:'ml',e:'🧱',def:1},
+    {n:'Solin de cheminée',u:'ml',e:'🏛️',def:1},
+    {n:'Cheminée (habillage)',u:'u',e:'🏠',def:1},
+    {n:'Fenêtre de toit',u:'u',e:'🪟',def:1},
+    {n:'Gouttière zinc',u:'ml',e:'🌊',def:1},
+    {n:'Bande d\'égout',u:'ml',e:'➰',def:1},
+    {n:'Descente EP',u:'ml',e:'🚰',def:1},
     {n:'Voligeage',u:'m²',e:'🪵'},
-    {n:'Écran sous-toiture',u:'m²',e:'📜'},
-    {n:'Faîtage / double pli',u:'ml',e:'🔺'},
-    {n:'Arêtier',u:'ml',e:'📐'},
-    {n:'Joint debout',u:'ml',e:'📏'},
     {n:'Soudure',u:'ml',e:'🔥'},
-    {n:'Noue',u:'ml',e:'〽️'},
-    {n:'Rive / pince',u:'ml',e:'📋'},
-    {n:'Solin',u:'ml',e:'🧱'},
-    {n:'Solin de cheminée',u:'ml',e:'🏛️'},
-    {n:'Habillage cheminée',u:'u',e:'🏠'},
-    {n:'Bande d\'égout',u:'ml',e:'➰'},
-    {n:'Gouttière zinc',u:'ml',e:'🌊'},
     {n:'Chéneau zinc',u:'ml',e:'💧'},
-    {n:'Descente EP',u:'ml',e:'🚰'},
     {n:'Couvertine',u:'ml',e:'🎩'},
-    {n:'Fenêtre de toit',u:'u',e:'🪟'},
     {n:'Jouée en zinc',u:'ml',e:'🔧'},
     {n:'Isolation',u:'m²',e:'🧊'}
   ],
   ardoise:[
-    {n:'Couverture ardoise',u:'m²',e:'⬛'},
+    {n:'Couverture ardoise',u:'m²',e:'⬛',def:1},
+    {n:'Faîtage',u:'ml',e:'🔺',def:1},
+    {n:'Arêtier',u:'ml',e:'📐',def:1},
+    {n:'Noue',u:'ml',e:'〽️',def:1},
+    {n:'Rive',u:'ml',e:'📋',def:1},
+    {n:'Solin',u:'ml',e:'🧱',def:1},
+    {n:'Solin de cheminée',u:'ml',e:'🏛️',def:1},
+    {n:'Cheminée (habillage)',u:'u',e:'🏠',def:1},
+    {n:'Fenêtre de toit',u:'u',e:'🪟',def:1},
+    {n:'Chatière',u:'u',e:'🔲',def:1},
+    {n:'Gouttière',u:'ml',e:'🌊',def:1},
+    {n:'Bande d\'égout',u:'ml',e:'➰',def:1},
+    {n:'Descente EP',u:'ml',e:'🚰',def:1},
     {n:'Crochets',u:'u',e:'🪝'},
-    {n:'Écran sous-toiture',u:'m²',e:'📜'},
     {n:'Voligeage',u:'m²',e:'🪵'},
     {n:'Liteaunage',u:'m²',e:'➖'},
-    {n:'Faîtage',u:'ml',e:'🔺'},
-    {n:'Arêtier',u:'ml',e:'📐'},
-    {n:'Noue',u:'ml',e:'〽️'},
-    {n:'Rive',u:'ml',e:'📋'},
-    {n:'Solin',u:'ml',e:'🧱'},
-    {n:'Solin de cheminée',u:'ml',e:'🏛️'},
-    {n:'Chatière',u:'u',e:'🔲'},
-    {n:'Gouttière',u:'ml',e:'🌊'},
-    {n:'Bande d\'égout',u:'ml',e:'➰'},
     {n:'Chéneau',u:'ml',e:'💧'},
-    {n:'Descente EP',u:'ml',e:'🚰'},
-    {n:'Fenêtre de toit',u:'u',e:'🪟'},
     {n:'Couvertine',u:'ml',e:'🎩'},
     {n:'Isolation',u:'m²',e:'🧊'}
   ],
   bac:[
-    {n:'Bac acier couverture',u:'m²',e:'🟦'},
+    {n:'Bac acier couverture',u:'m²',e:'🟦',def:1},
+    {n:'Faîtage pliée',u:'ml',e:'🔺',def:1},
+    {n:'Arêtier',u:'ml',e:'📐',def:1},
+    {n:'Noue',u:'ml',e:'〽️',def:1},
+    {n:'Rive / tôle de rive',u:'ml',e:'📋',def:1},
+    {n:'Solin',u:'ml',e:'🧱',def:1},
+    {n:'Solin de cheminée',u:'ml',e:'🏛️',def:1},
+    {n:'Cheminée (habillage)',u:'u',e:'🏠',def:1},
+    {n:'Fenêtre de toit',u:'u',e:'🪟',def:1},
+    {n:'Closoir',u:'ml',e:'🔲',def:1},
+    {n:'Gouttière',u:'ml',e:'🌊',def:1},
+    {n:'Bande d\'égout',u:'ml',e:'➰',def:1},
+    {n:'Descente EP',u:'ml',e:'🚰',def:1},
     {n:'Bac acier isolé (sandwich)',u:'m²',e:'🥪'},
     {n:'Étanchéité / membrane',u:'m²',e:'📜'},
-    {n:'Film bitumineux',u:'m²',e:'🎞️'},
-    {n:'Faîtage pliée',u:'ml',e:'🔺'},
-    {n:'Arêtier',u:'ml',e:'📐'},
-    {n:'Noue',u:'ml',e:'〽️'},
-    {n:'Rive / tôle de rive',u:'ml',e:'📋'},
-    {n:'Bande d\'égout',u:'ml',e:'➰'},
-    {n:'Solin',u:'ml',e:'🧱'},
-    {n:'Solin de cheminée',u:'ml',e:'🏛️'},
-    {n:'Closoir',u:'ml',e:'🔲'},
     {n:'Habillage latéral',u:'ml',e:'🏠'},
-    {n:'Gouttière',u:'ml',e:'🌊'},
     {n:'Chéneau',u:'ml',e:'💧'},
-    {n:'Descente EP',u:'ml',e:'🚰'},
     {n:'Couvertine',u:'ml',e:'🎩'},
-    {n:'Fenêtre de toit',u:'u',e:'🪟'},
     {n:'Vis / fixations',u:'u',e:'🔩'},
     {n:'Isolation',u:'m²',e:'🧊'}
   ]
@@ -724,7 +725,7 @@ function createToit(){
   const nom=$('newToitNom').value.trim();
   const t={id:uid(),nom,type,ouvrages:[]};
   // pré-remplir avec ouvrages les plus courants (les 6 premiers du catalogue)
-  CATALOGUE[type].slice(0,6).forEach(o=>{
+  CATALOGUE[type].filter(o=>o.def).forEach(o=>{
     t.ouvrages.push({id:uid(),nom:o.n,unite:o.u,em:o.e,mesures:[],note:''});
   });
   cur.data.toitures.push(t);
@@ -785,7 +786,7 @@ function ouvrageCard(o,t){
     <div class="ouv-body">
       <div class="mesures"></div>
       <div class="add-mesure">
-        <input type="number" inputmode="decimal" step="0.01" placeholder="Mesure en ${o.unite}" onkeydown="if(event.key==='Enter')addMesure(this,'${t.id}','${o.id}')">
+        <input type="text" inputmode="decimal" placeholder="ex: 3.5 ou 3*5" onkeydown="if(event.key==='Enter')addMesure(this,'${t.id}','${o.id}')">
         <button class="btn btn-primary" onclick="addMesure(this.previousElementSibling,'${t.id}','${o.id}')">+</button>
       </div>
       <div class="ouv-sum"><span>Total ${o.nom}</span><span><b>${fmt(total)}</b> ${o.unite}</span></div>
@@ -805,15 +806,22 @@ function ouvrageCard(o,t){
   return card;
 }
 function toggleOuv(head){head.parentElement.classList.toggle('open')}
+function evalFormule(str){
+  // accepte chiffres . , + - * / x et parenthèses ; rien d'autre (sécurité)
+  if(!str)return NaN;
+  let s=String(str).replace(/,/g,'.').replace(/x/gi,'*').replace(/\s/g,'');
+  if(!/^[0-9.+\-*/()]+$/.test(s))return NaN;
+  try{const r=Function('"use strict";return('+s+')')();return(typeof r==='number'&&isFinite(r))?r:NaN}catch(e){return NaN}
+}
 function addMesure(inp,tid,oid){
-  const v=parseFloat(inp.value);
+  const v=evalFormule(inp.value);
   if(isNaN(v)||v<=0){toast('Valeur invalide','err');return}
   const t=cur.data.toitures.find(x=>x.id===tid);
   const o=t.ouvrages.find(x=>x.id===oid);
-  o.mesures.push(v);
+  o.mesures.push(Math.round(v*1000)/1000);
   inp.value='';
   refreshOuv(tid,oid);markDirty();
-  setTimeout(()=>inp.focus(),50);
+  setTimeout(()=>{const ni=document.querySelector(`.ouvrage[data-id="${oid}"] .add-mesure input`);if(ni)ni.focus()},60);
 }
 function delMesure(tid,oid,i){
   const t=cur.data.toitures.find(x=>x.id===tid);
@@ -870,45 +878,70 @@ function addCustomOuv(){
 function renderCalc(){
   const tb=$('calcBody');tb.innerHTML='';
   if(!cur.data.calcul.length){
-    tb.innerHTML='<tr><td colspan="6"><div class="empty" style="padding:30px 10px"><span class="em">🧮</span><div class="t">Tableau vide</div><div class="s">Importez votre métré ou ajoutez des lignes manuellement. Ici vous êtes libre comme dans Excel.</div></div></td></tr>';
+    tb.innerHTML='<tr><td colspan="4"><div class="empty" style="padding:30px 10px"><span class="em">🧮</span><div class="t">Tableau vide</div><div class="s">Importez votre métré ou ajoutez des lignes. Tapez les quantités comme dans Excel : <b>3*5+2-1</b>. Entrée = ligne suivante.</div></div></td></tr>';
     $('calcCount').textContent='0';return;
   }
   cur.data.calcul.forEach(r=>{
     if(r.type==='cat'){
       const tr=document.createElement('tr');tr.className='cat-row';
-      tr.innerHTML=`<td colspan="5"><input value="" style="font-weight:800;color:var(--rouge);text-transform:uppercase" oninput="calcEdit('${r.id}','nom',this.value)"></td><td><button class="row-del" onclick="calcDel('${r.id}')">×</button></td>`;
+      tr.innerHTML=`<td colspan="3"><input value="" style="font-weight:800;color:var(--rouge);text-transform:uppercase;width:100%" placeholder="Nom catégorie" oninput="calcEdit('${r.id}','nom',this.value)"></td><td><button class="row-del" onclick="calcDel('${r.id}')">×</button></td>`;
       tr.querySelector('input').value=r.nom||'';
       tb.appendChild(tr);
     }else{
-      const total=(Number(r.qte)||0)*(1+(Number(r.chute)||0)/100);
+      const val=evalFormule(r.qte)||0;
       const tr=document.createElement('tr');
       tr.innerHTML=`
-        <td><input value="" oninput="calcEdit('${r.id}','nom',this.value)"></td>
-        <td><input value="${r.unite||''}" style="width:100%" oninput="calcEdit('${r.id}','unite',this.value)"></td>
-        <td><input class="num" type="number" inputmode="decimal" step="0.01" value="${r.qte??''}" oninput="calcEdit('${r.id}','qte',this.value);calcRowTotal(this)"></td>
-        <td><input class="num" type="number" inputmode="decimal" step="1" value="${r.chute??''}" oninput="calcEdit('${r.id}','chute',this.value);calcRowTotal(this)" style="width:56px">%</td>
-        <td class="calc-total">${fmt(total)}</td>
+        <td><input class="c-nom" value="" placeholder="Ouvrage" oninput="calcEdit('${r.id}','nom',this.value)" onkeydown="calcKey(event,'${r.id}',0)"></td>
+        <td><input class="c-uni" value="${r.unite||''}" placeholder="ml" oninput="calcEdit('${r.id}','unite',this.value)" onkeydown="calcKey(event,'${r.id}',1)"></td>
+        <td><input class="c-qte" value="" placeholder="ex: 3*5+2" oninput="calcEdit('${r.id}','qte',this.value);calcShowTotal(this)" onkeydown="calcKey(event,'${r.id}',2)"><span class="c-res" title="résultat">${val?('= '+fmt(val)):''}</span></td>
         <td><button class="row-del" onclick="calcDel('${r.id}')">×</button></td>`;
-      tr.querySelector('input').value=r.nom||'';
+      tr.querySelector('.c-nom').value=r.nom||'';
+      tr.querySelector('.c-qte').value=r.qte??'';
       tb.appendChild(tr);
     }
   });
   $('calcCount').textContent=cur.data.calcul.filter(r=>r.type==='row').length;
   updateMeta();
 }
-function calcRowTotal(inp){
-  const tr=inp.closest('tr');
-  const qte=parseFloat(tr.cells[2].querySelector('input').value)||0;
-  const chute=parseFloat(tr.cells[3].querySelector('input').value)||0;
-  tr.querySelector('.calc-total').textContent=fmt(qte*(1+chute/100));
+function calcShowTotal(inp){
+  const span=inp.parentElement.querySelector('.c-res');
+  const v=evalFormule(inp.value);
+  span.textContent=(v&&isFinite(v))?('= '+fmt(v)):'';
+}
+function calcKey(e,id,col){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const rows=cur.data.calcul.filter(r=>r.type!=='cat'||1);
+    const idx=cur.data.calcul.findIndex(r=>r.id===id);
+    // s'il existe une ligne en dessous, focus dessus (même colonne), sinon créer
+    const below=cur.data.calcul[idx+1];
+    if(below&&below.type==='row'){
+      focusCalc(below.id,col);
+    }else{
+      const nr={id:uid(),type:'row',nom:'',unite:cur.data.calcul[idx]?.unite||'ml',qte:''};
+      cur.data.calcul.splice(idx+1,0,nr);renderCalc();markDirty();
+      focusCalc(nr.id,col);
+    }
+  }
+}
+function focusCalc(id,col){
+  setTimeout(()=>{
+    const tb=$('calcBody');
+    const rows=[...tb.querySelectorAll('tr')];
+    // retrouver la ligne par son bouton delete onclick
+    for(const tr of rows){
+      const del=tr.querySelector(`.row-del[onclick*="${id}"]`);
+      if(del){const sel=['.c-nom','.c-uni','.c-qte'][col]||'.c-nom';const f=tr.querySelector(sel);if(f){f.focus();f.select&&f.select();}break;}
+    }
+  },50);
 }
 function calcEdit(id,field,val){
   const r=cur.data.calcul.find(x=>x.id===id);if(!r)return;
-  r[field]=(field==='qte'||field==='chute')?val:val;markDirty();
-  if(field==='qte'||field==='chute')updateMeta();
+  r[field]=val;markDirty();
+  if(field==='qte')updateMeta();
 }
 function calcDel(id){cur.data.calcul=cur.data.calcul.filter(r=>r.id!==id);renderCalc();markDirty()}
-function addCalcRow(){cur.data.calcul.push({id:uid(),type:'row',nom:'',unite:'ml',qte:'',chute:5});renderCalc();markDirty();const inps=$('calcBody').querySelectorAll('tr:last-child input');if(inps[0])inps[0].focus()}
+function addCalcRow(){const r={id:uid(),type:'row',nom:'',unite:'ml',qte:''};cur.data.calcul.push(r);renderCalc();markDirty();focusCalc(r.id,0)}
 function addCalcCat(){cur.data.calcul.push({id:uid(),type:'cat',nom:'Nouvelle catégorie'});renderCalc();markDirty()}
 function importMetre(){
   if(!cur.data.toitures.length){toast('Aucun métré à importer','err');return}
@@ -920,7 +953,7 @@ function importMetre(){
     if(!filled.length)return;
     rows.push({id:uid(),type:'cat',nom:`${t.nom||tp.nom} (${tp.nom})`});
     filled.forEach(o=>{
-      rows.push({id:uid(),type:'row',nom:o.nom,unite:o.unite,qte:+sumMes(o.mesures).toFixed(2),chute:CHUTE_DEF[o.unite]??5});
+      rows.push({id:uid(),type:'row',nom:o.nom,unite:o.unite,qte:String(+sumMes(o.mesures).toFixed(2))});
     });
   });
   if(!rows.length){toast('Aucune mesure saisie','err');return}
@@ -1016,7 +1049,14 @@ function setupRealtime(){
 
 /* save avant fermeture */
 window.addEventListener('beforeunload',e=>{if(dirty){collectNotes();saveLocal()}});
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&dirty)saveNow()});
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){if(dirty)saveNow();}
+  else{
+    // au retour sur l'app : re-afficher proprement (corrige l'écran vide sur mobile)
+    if(cur){try{renderAll();goTab(activeTab);}catch(e){console.warn(e)}}
+  }
+});
+window.addEventListener('pageshow',()=>{if(cur){try{renderAll();goTab(activeTab)}catch(e){}}});
 window.addEventListener('online',()=>setSync(true));
 window.addEventListener('offline',()=>setSync(false));
 
