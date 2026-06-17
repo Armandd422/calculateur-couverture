@@ -27,12 +27,12 @@ html,body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helveti
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:1100px;margin:0 auto;background:var(--bg)}
 
 /* ===== HEADER ===== */
-header{background:var(--noir);padding:env(safe-area-inset-top) 14px 0;flex-shrink:0;box-shadow:var(--ombre-md);position:relative;z-index:30}
-.header-in{display:flex;align-items:center;gap:12px;padding:10px 2px}
-.logo{height:38px;width:auto;display:block}
+header{background:#fff;padding:env(safe-area-inset-top) 14px 0;flex-shrink:0;box-shadow:var(--ombre);border-bottom:1px solid var(--bordure);position:relative;z-index:30}
+.header-in{display:flex;align-items:center;gap:12px;padding:9px 2px}
+.logo{height:40px;width:auto;display:block}
 .header-spacer{flex:1}
-.sync{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);padding:6px 11px;border-radius:20px;font-size:12px;color:#fff;font-weight:600;cursor:pointer;transition:.2s}
-.sync:active{background:rgba(255,255,255,.2)}
+.sync{display:flex;align-items:center;gap:6px;background:#F3F4F6;padding:7px 12px;border-radius:20px;font-size:12px;color:var(--texte-doux);font-weight:700;cursor:pointer;transition:.2s;border:1px solid var(--bordure)}
+.sync:active{background:#E5E7EB}
 .sync .dot{width:8px;height:8px;border-radius:50%;background:var(--succes);box-shadow:0 0 0 0 rgba(22,163,74,.5);animation:pulse 2s infinite}
 .sync.off .dot{background:var(--gris-clair);animation:none}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.5)}70%{box-shadow:0 0 0 6px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
@@ -165,6 +165,26 @@ td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-n
 .empty .t{font-weight:700;font-size:16px;color:var(--texte-doux);margin-bottom:6px}
 .empty .s{font-size:13.5px;line-height:1.5;max-width:280px;margin:0 auto 18px}
 
+/* ===== SURFACES ===== */
+.surf-card{background:#fff;border:1px solid var(--bordure);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
+.surf-head{display:flex;align-items:center;gap:10px;padding:11px 13px;background:#F8F9FB}
+.surf-head select{flex:1;font-weight:700}
+.surf-head .sx{width:32px;height:32px;border:none;background:transparent;color:var(--gris-clair);font-size:18px;cursor:pointer;border-radius:6px;flex-shrink:0}
+.surf-head .sx:active{background:#FEE2E2;color:var(--rouge)}
+.surf-body{padding:13px}
+.surf-inputs{display:grid;gap:9px;margin-bottom:11px}
+.surf-formule{font-size:12px;color:var(--gris);background:#F3F4F6;padding:7px 11px;border-radius:7px;margin-bottom:10px;font-style:italic}
+.surf-res{display:flex;justify-content:space-between;align-items:center;background:#FEF2F2;padding:11px 14px;border-radius:8px}
+.surf-res .l{font-size:12px;color:var(--rouge-fonce);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.surf-res .v{font-size:20px;font-weight:800;color:var(--rouge);font-variant-numeric:tabular-nums}
+.surf-mult{display:flex;align-items:center;gap:8px;margin-top:9px;padding-top:11px;border-top:1px dashed var(--bordure)}
+.surf-mult label{font-size:12px;color:var(--texte-doux);font-weight:700;white-space:nowrap}
+.surf-mult input{width:70px;text-align:center;font-weight:700}
+.surf-grand{background:var(--noir);color:#fff;border-radius:var(--r);padding:15px 18px;display:flex;justify-content:space-between;align-items:center;margin:13px 0 6px}
+.surf-grand .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.5px;opacity:.7;font-weight:700}
+.surf-grand .val{font-size:23px;font-weight:800;font-variant-numeric:tabular-nums}
+.code-display{background:var(--noir);color:#fff;font-size:26px;font-weight:800;letter-spacing:4px;text-align:center;padding:16px;border-radius:var(--r);margin:10px 0;font-family:monospace}
+
 /* ===== MODAL ===== */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:flex-end;justify-content:center;animation:fade .2s}
 .modal.show{display:flex}
@@ -212,6 +232,7 @@ td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-n
     <div class="header-in">
       <img src="logo.png" alt="Couvr'Toit" class="logo" onerror="this.style.display='none'">
       <div class="header-spacer"></div>
+      <button class="sync" onclick="openCode()" style="margin-right:7px"><span>🔗</span><span id="codeTxt">Code</span></button>
       <div class="sync" id="sync" onclick="forceSync()">
         <span class="dot"></span><span id="syncTxt">Synchro</span>
       </div>
@@ -227,6 +248,7 @@ td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-n
 
   <div class="tabs">
     <button class="tab active" data-p="metre" onclick="goTab('metre',this)"><span class="ic">📐</span><span class="lb">Métré</span></button>
+    <button class="tab" data-p="surface" onclick="goTab('surface',this)"><span class="ic">📏</span><span class="lb">Surface</span></button>
     <button class="tab" data-p="calcul" onclick="goTab('calcul',this)"><span class="ic">🧮</span><span class="lb">Calcul</span></button>
     <button class="tab" data-p="materiel" onclick="goTab('materiel',this)"><span class="ic">📦</span><span class="lb">Matériel</span></button>
     <button class="tab" data-p="brouillon" onclick="goTab('brouillon',this)"><span class="ic">📝</span><span class="lb">Notes</span></button>
@@ -248,6 +270,19 @@ td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-n
       </div>
       <div class="toit-tabs" id="toitTabs"></div>
       <div id="metreContent"></div>
+    </div>
+
+    <!-- ===== SURFACE ===== -->
+    <div class="page" id="page-surface">
+      <div class="notes-box">
+        <label>⚡ Note rapide (surfaces)</label>
+        <textarea id="note-surface" placeholder="Pans de toiture, pentes, calculs divers..." oninput="markDirty()"></textarea>
+      </div>
+      <div class="calc-toolbar">
+        <button class="btn btn-primary btn-sm" onclick="addSurf()">➕ Ajouter une surface</button>
+      </div>
+      <div id="surfList"></div>
+      <div class="surf-grand"><span class="lbl">Surface totale</span><span class="val" id="surfTotal">0 m²</span></div>
     </div>
 
     <!-- ===== CALCUL ===== -->
@@ -315,6 +350,20 @@ td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-n
 <div class="toast" id="toast"></div>
 
 <!-- MODALS -->
+<div class="modal" id="mCode">
+  <div class="modal-box">
+    <h2>🔗 Code de connexion</h2>
+    <div class="sub">Pour retrouver vos chantiers sur tous vos appareils : utilisez le <b>même code</b> sur le téléphone ET l'ordinateur.</div>
+    <div class="code-display" id="codeShow">—</div>
+    <div class="fg"><label>Changer / saisir un code</label><input id="codeInput" placeholder="ex: couvrtoit2024" autocapitalize="off" autocorrect="off"></div>
+    <div class="sub" style="margin-bottom:0">⚠️ Notez bien ce code. Toute personne qui l'a verra vos chantiers. Choisissez quelque chose d'unique (ex: <i>couvrtoit-armand-77</i>).</div>
+    <div class="modal-actions">
+      <button class="btn btn-gris" onclick="closeModal('mCode')">Fermer</button>
+      <button class="btn btn-primary" onclick="applyCode()">Appliquer ce code</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="mChantiers">
   <div class="modal-box">
     <h2>🏠 Mes chantiers</h2>
@@ -481,8 +530,9 @@ const CATALOGUE={
 const CHUTE_DEF={'m²':10,'ml':5,'u':0,'kg':5,'forfait':0};
 
 /* ---------- ÉTAT ---------- */
-let userId=localStorage.getItem('ct_uid');
-if(!userId){userId='ct_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);localStorage.setItem('ct_uid',userId);}
+/* userId = code de connexion partagé entre appareils (au lieu d'un ID aléatoire) */
+let userId=localStorage.getItem('ct_code');
+if(!userId){userId='couvrtoit';localStorage.setItem('ct_code',userId);}
 let chantiers=[];
 let cur=null;            // chantier courant (objet complet)
 let curToit=null;        // id toiture courante
@@ -508,7 +558,7 @@ cur = {id,user_id,nom,...,data:{
   notes:{metre,calcul,materiel,libre,client,adresse,tel,date}
 }}
 ------------------------------------------- */
-function blankData(){return{toitures:[],calcul:[],materiel:[],notes:{metre:'',calcul:'',materiel:'',libre:'',client:'',adresse:'',tel:'',date:''}}}
+function blankData(){return{toitures:[],surfaces:[],calcul:[],materiel:[],notes:{metre:'',surface:'',calcul:'',materiel:'',libre:'',client:'',adresse:'',tel:'',date:''}}}
 
 /* ============================================================
    CHARGEMENT
@@ -558,6 +608,7 @@ function renderAll(){
   // notes
   const n=cur.data.notes;
   $('note-metre').value=n.metre||'';
+  $('note-surface').value=n.surface||'';
   $('note-calcul').value=n.calcul||'';
   $('note-materiel').value=n.materiel||'';
   $('note-libre').value=n.libre||'';
@@ -567,6 +618,7 @@ function renderAll(){
   $('info-date').value=n.date||'';
   renderToitTabs();
   renderMetre();
+  renderSurf();
   renderCalc();
   renderMat();
   updateMeta();
@@ -916,7 +968,7 @@ function suggestMat(){
 function collectNotes(){
   if(!cur)return;
   cur.data.notes={
-    metre:$('note-metre').value,calcul:$('note-calcul').value,
+    metre:$('note-metre').value,surface:$('note-surface').value,calcul:$('note-calcul').value,
     materiel:$('note-materiel').value,libre:$('note-libre').value,
     client:$('info-client').value,adresse:$('info-adresse').value,
     tel:$('info-tel').value,date:$('info-date').value
@@ -951,7 +1003,7 @@ function setSync(on){const s=$('sync');if(on){s.classList.remove('off');$('syncT
 function setupRealtime(){
   if(!sb)return;
   try{
-    sb.channel('ct_'+userId).on('postgres_changes',{event:'*',schema:'public',table:'chantiers',filter:`user_id=eq.${userId}`},payload=>{
+    sb.channel('ct_'+userId.replace(/[^a-z0-9]/g,'_')).on('postgres_changes',{event:'*',schema:'public',table:'chantiers',filter:`user_id=eq.${userId}`},payload=>{
       if(dirty)return; // ne pas écraser saisie en cours
       if(payload.eventType==='UPDATE'&&cur&&payload.new.id===cur.id){
         cur.data=payload.new.data;cur.nom=payload.new.nom;
@@ -968,8 +1020,106 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&dirty)save
 window.addEventListener('online',()=>setSync(true));
 window.addEventListener('offline',()=>setSync(false));
 
+/* ============================================================
+   CODE DE CONNEXION (synchro multi-appareils)
+   ============================================================ */
+function openCode(){
+  $('codeShow').textContent=userId;
+  $('codeInput').value='';
+  openModal('mCode');
+}
+async function applyCode(){
+  let code=$('codeInput').value.trim().toLowerCase().replace(/[^a-z0-9\-_]/g,'');
+  if(code.length<4){toast('Code trop court (min 4)','err');return}
+  if(dirty)await saveNow();
+  userId=code;
+  localStorage.setItem('ct_code',code);
+  $('codeTxt').textContent=code.length>8?code.slice(0,7)+'…':code;
+  closeModal('mCode');
+  cur=null;curToit=null;
+  toast('Code appliqué : '+code,'ok');
+  await init();
+}
+
+/* ============================================================
+   SURFACES (formes géométriques + multiplication)
+   ============================================================ */
+const FORMES={
+  rect:{nom:'Rectangle / Carré',champs:[['L','Longueur'],['l','Largeur']],calc:v=>v.L*v.l,f:'L × l'},
+  tri:{nom:'Triangle',champs:[['b','Base'],['h','Hauteur']],calc:v=>v.b*v.h/2,f:'(base × hauteur) ÷ 2'},
+  trap:{nom:'Trapèze',champs:[['B','Grande base'],['b','Petite base'],['h','Hauteur']],calc:v=>(v.B+v.b)*v.h/2,f:'((B + b) × h) ÷ 2'},
+  para:{nom:'Parallélogramme',champs:[['b','Base'],['h','Hauteur']],calc:v=>v.b*v.h,f:'base × hauteur'},
+  pan:{nom:'Pan de toit (rampant)',champs:[['L','Longueur'],['r','Rampant']],calc:v=>v.L*v.r,f:'longueur × rampant'},
+  cercle:{nom:'Cercle / Rond',champs:[['d','Diamètre']],calc:v=>Math.PI*(v.d/2)**2,f:'π × rayon²'},
+  libre:{nom:'Surface directe (m²)',champs:[['s','Surface m²']],calc:v=>v.s,f:'valeur directe'}
+};
+function renderSurf(){
+  const box=$('surfList');box.innerHTML='';
+  if(!cur.data.surfaces)cur.data.surfaces=[];
+  if(!cur.data.surfaces.length){
+    box.innerHTML='<div class="empty" style="padding:34px 10px"><span class="em">📏</span><div class="t">Aucune surface</div><div class="s">Ajoutez vos pans de toiture. Choisissez la forme (rectangle, triangle, trapèze, parallélogramme...), saisissez les côtes, et multipliez si plusieurs identiques.</div><button class="btn btn-primary" onclick="addSurf()">➕ Première surface</button></div>';
+    $('surfTotal').textContent='0 m²';return;
+  }
+  cur.data.surfaces.forEach(s=>box.appendChild(surfCard(s)));
+  let tot=0;cur.data.surfaces.forEach(s=>tot+=surfResult(s));
+  $('surfTotal').textContent=fmt(tot)+' m²';
+}
+function surfResult(s){
+  const F=FORMES[s.forme];if(!F)return 0;
+  const v={};let ok=true;
+  F.champs.forEach(([k])=>{v[k]=Number(s.vals?.[k])||0;if(!v[k])ok=false});
+  if(!ok)return 0;
+  return F.calc(v)*(Number(s.mult)||1);
+}
+function surfCard(s){
+  const F=FORMES[s.forme];
+  const card=document.createElement('div');card.className='surf-card';card.dataset.id=s.id;
+  let opts='';Object.entries(FORMES).forEach(([k,v])=>{opts+=`<option value="${k}" ${k===s.forme?'selected':''}>${v.nom}</option>`});
+  let inputs='';
+  F.champs.forEach(([k,lbl])=>{
+    inputs+=`<div class="fg" style="margin:0"><label>${lbl} (m)</label><input type="number" inputmode="decimal" step="0.01" value="${s.vals?.[k]??''}" oninput="surfSet('${s.id}','${k}',this.value)"></div>`;
+  });
+  const res=surfResult(s);
+  card.innerHTML=`
+    <div class="surf-head">
+      <span style="font-size:18px">📐</span>
+      <select onchange="surfForme('${s.id}',this.value)">${opts}</select>
+      <button class="sx" onclick="surfDel('${s.id}')">🗑️</button>
+    </div>
+    <div class="surf-body">
+      <div class="surf-formule">Formule : ${F.f}</div>
+      <div class="surf-inputs" style="grid-template-columns:repeat(${Math.min(F.champs.length,2)},1fr)">${inputs}</div>
+      <div class="fg" style="margin-bottom:10px"><label>Nom / repère (optionnel)</label><input value="${s.nom||''}" placeholder="ex: Pan sud, Versant gauche" oninput="surfSet2('${s.id}','nom',this.value)"></div>
+      <div class="surf-res"><span class="l">Surface unitaire</span><span class="v">${fmt(F.calc(Object.fromEntries(F.champs.map(([k])=>[k,Number(s.vals?.[k])||0])))) } m²</span></div>
+      <div class="surf-mult">
+        <label>× Quantité identique :</label>
+        <input type="number" inputmode="numeric" step="1" min="1" value="${s.mult||1}" oninput="surfSet2('${s.id}','mult',this.value)">
+        <span style="flex:1;text-align:right;font-weight:800;color:var(--rouge);font-size:17px">= ${fmt(res)} m²</span>
+      </div>
+    </div>`;
+  return card;
+}
+function addSurf(){
+  if(!cur.data.surfaces)cur.data.surfaces=[];
+  cur.data.surfaces.push({id:uid(),forme:'rect',nom:'',vals:{},mult:1});
+  renderSurf();markDirty();
+}
+function surfForme(id,forme){const s=cur.data.surfaces.find(x=>x.id===id);if(s){s.forme=forme;s.vals={};renderSurf();markDirty()}}
+function surfSet(id,k,val){const s=cur.data.surfaces.find(x=>x.id===id);if(s){if(!s.vals)s.vals={};s.vals[k]=val;refreshSurf(id);markDirty()}}
+function surfSet2(id,k,val){const s=cur.data.surfaces.find(x=>x.id===id);if(s){s[k]=val;refreshSurf(id);markDirty()}}
+function refreshSurf(id){
+  const s=cur.data.surfaces.find(x=>x.id===id);
+  const old=document.querySelector(`.surf-card[data-id="${id}"]`);
+  if(old&&s){const nc=surfCard(s);old.replaceWith(nc);}
+  let tot=0;cur.data.surfaces.forEach(s=>tot+=surfResult(s));$('surfTotal').textContent=fmt(tot)+' m²';
+}
+function surfDel(id){cur.data.surfaces=cur.data.surfaces.filter(s=>s.id!==id);renderSurf();markDirty()}
+
 /* service worker */
 if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js').catch(()=>{})}
+
+/* affichage code au démarrage */
+$('codeTxt').textContent=userId.length>8?userId.slice(0,7)+'…':userId;
 
 init();
 </script>
