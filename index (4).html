@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#E2231A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Couvr'Toit Métré">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Couvr'Toit · Métré & Quantitatifs</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+--rouge:#E2231A;--rouge-fonce:#B01810;--rouge-clair:#FF3B30;
+--noir:#1A1A1A;--gris-fonce:#2C2C2C;--gris:#6B6B6B;--gris-clair:#9E9E9E;
+--bg:#F0F1F3;--card:#FFFFFF;--bordure:#E0E2E6;--bordure-active:#E2231A;
+--texte:#1A1A1A;--texte-doux:#5A5A5A;
+--succes:#16A34A;--succes-bg:#DCFCE7;--info:#0284C7;--warn:#F59E0B;--warn-bg:#FEF3C7;
+--ombre:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+--ombre-md:0 4px 12px rgba(0,0,0,.10);--ombre-lg:0 10px 40px rgba(0,0,0,.20);
+--r:10px;--r-sm:7px;--r-lg:16px;
+}
+html,body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--texte);height:100%;overflow:hidden;font-size:15px;line-height:1.45}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:1100px;margin:0 auto;background:var(--bg)}
+
+/* ===== HEADER ===== */
+header{background:var(--noir);padding:env(safe-area-inset-top) 14px 0;flex-shrink:0;box-shadow:var(--ombre-md);position:relative;z-index:30}
+.header-in{display:flex;align-items:center;gap:12px;padding:10px 2px}
+.logo{height:38px;width:auto;display:block}
+.header-spacer{flex:1}
+.sync{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);padding:6px 11px;border-radius:20px;font-size:12px;color:#fff;font-weight:600;cursor:pointer;transition:.2s}
+.sync:active{background:rgba(255,255,255,.2)}
+.sync .dot{width:8px;height:8px;border-radius:50%;background:var(--succes);box-shadow:0 0 0 0 rgba(22,163,74,.5);animation:pulse 2s infinite}
+.sync.off .dot{background:var(--gris-clair);animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.5)}70%{box-shadow:0 0 0 6px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+
+/* ===== BARRE CHANTIER ===== */
+.chantier-zone{background:var(--gris-fonce);padding:9px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0;border-bottom:2px solid var(--rouge);overflow-x:auto;scrollbar-width:none}
+.chantier-zone::-webkit-scrollbar{display:none}
+.ch-current{display:flex;align-items:center;gap:8px;background:var(--rouge);color:#fff;padding:8px 14px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap;box-shadow:var(--ombre);border:none;transition:.2s}
+.ch-current:active{transform:scale(.97)}
+.ch-current .chev{font-size:10px;opacity:.8}
+.ch-meta{color:#bbb;font-size:12px;white-space:nowrap;display:flex;align-items:center;gap:5px}
+
+/* ===== TABS ===== */
+.tabs{display:flex;background:var(--card);flex-shrink:0;box-shadow:var(--ombre);position:relative;z-index:20}
+.tab{flex:1;padding:11px 4px 9px;border:none;background:transparent;color:var(--gris);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;transition:.2s;font-family:inherit}
+.tab .ic{font-size:19px;line-height:1}
+.tab .lb{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.tab.active{color:var(--rouge)}
+.tab.active::after{content:"";position:absolute;bottom:0;left:18%;right:18%;height:3px;background:var(--rouge);border-radius:3px 3px 0 0}
+
+/* ===== CONTENT ===== */
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:13px;padding-bottom:90px}
+.page{display:none;animation:fade .25s}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ===== NOTES RAPIDES ===== */
+.notes-box{background:linear-gradient(135deg,#FFF9E6,#FEF3C7);border:1px solid #FCD34D;border-radius:var(--r);padding:11px 13px;margin-bottom:13px}
+.notes-box label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#92660A;text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px}
+.notes-box textarea{width:100%;border:none;background:rgba(255,255,255,.7);border-radius:var(--r-sm);padding:9px;font-family:inherit;font-size:14px;resize:vertical;min-height:54px;color:var(--noir)}
+.notes-box textarea:focus{outline:2px solid #FCD34D}
+
+/* ===== CARTES ===== */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--ombre);margin-bottom:13px;overflow:hidden;border:1px solid var(--bordure)}
+.card-head{background:var(--rouge);color:#fff;padding:11px 14px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:9px;letter-spacing:.2px}
+.card-head .ic{font-size:17px}
+.card-body{padding:14px}
+
+/* ===== FORM ===== */
+.fg{margin-bottom:13px}
+.fg:last-child{margin-bottom:0}
+.fg label{display:block;font-size:11px;font-weight:800;color:var(--texte-doux);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+input,select,textarea{width:100%;padding:11px 12px;border:1.5px solid var(--bordure);border-radius:var(--r-sm);font-size:15px;font-family:inherit;color:var(--texte);background:#fff;transition:.15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--rouge);box-shadow:0 0 0 3px rgba(226,35,26,.1)}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%236B6B6B' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+
+/* ===== BOUTONS ===== */
+.btn{padding:12px 18px;border:none;border-radius:var(--r-sm);font-weight:700;cursor:pointer;font-size:14px;font-family:inherit;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--rouge);color:#fff;box-shadow:var(--ombre)}
+.btn-primary:active{background:var(--rouge-fonce)}
+.btn-ghost{background:#fff;color:var(--rouge);border:1.5px solid var(--rouge)}
+.btn-gris{background:#EEF0F3;color:var(--texte-doux)}
+.btn-full{width:100%}
+.btn-sm{padding:8px 13px;font-size:13px}
+.btn-icon{width:38px;height:38px;padding:0;border-radius:8px}
+.fab-save{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom));right:16px;z-index:40;background:var(--succes);color:#fff;padding:13px 22px;border-radius:30px;box-shadow:var(--ombre-lg);font-weight:800;border:none;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-family:inherit}
+.fab-save:active{transform:scale(.95)}
+
+/* ===== TOITURES (MÉTRÉ) ===== */
+.toit-tabs{display:flex;gap:7px;overflow-x:auto;padding-bottom:9px;margin-bottom:4px;scrollbar-width:none}
+.toit-tabs::-webkit-scrollbar{display:none}
+.toit-chip{padding:8px 13px;background:#fff;border:1.5px solid var(--bordure);border-radius:20px;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;color:var(--texte-doux);transition:.2s;display:flex;align-items:center;gap:6px}
+.toit-chip.active{background:var(--noir);color:#fff;border-color:var(--noir)}
+.toit-chip .x{opacity:.6;font-size:15px}
+.toit-add{padding:8px 13px;background:var(--rouge);color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;flex-shrink:0}
+
+.type-banner{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:var(--r);margin-bottom:13px;font-weight:700;font-size:14px;color:#fff}
+.type-banner .em{font-size:22px}
+.type-tuile{background:linear-gradient(135deg,#C2410C,#9A3412)}
+.type-zinc{background:linear-gradient(135deg,#64748B,#475569)}
+.type-ardoise{background:linear-gradient(135deg,#374151,#1F2937)}
+.type-bac{background:linear-gradient(135deg,#0E7490,#155E75)}
+
+/* ===== OUVRAGE ===== */
+.ouvrage{background:var(--card);border:1px solid var(--bordure);border-radius:var(--r);margin-bottom:10px;overflow:hidden;transition:.2s}
+.ouvrage.has-val{border-color:var(--rouge);box-shadow:0 0 0 1px var(--rouge)}
+.ouv-head{display:flex;align-items:center;gap:10px;padding:11px 13px;cursor:pointer;user-select:none}
+.ouv-head .em{font-size:18px;flex-shrink:0}
+.ouv-info{flex:1;min-width:0}
+.ouv-nom{font-weight:700;font-size:14.5px;color:var(--noir)}
+.ouv-unite{font-size:11px;color:var(--gris-clair);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.ouv-total{text-align:right;flex-shrink:0}
+.ouv-total .v{font-weight:800;font-size:17px;color:var(--rouge);font-variant-numeric:tabular-nums}
+.ouv-total .v.zero{color:var(--bordure)}
+.ouv-total .u{font-size:10px;color:var(--gris-clair);font-weight:600}
+.ouv-chev{color:var(--gris-clair);font-size:13px;transition:.2s;flex-shrink:0}
+.ouvrage.open .ouv-chev{transform:rotate(90deg)}
+.ouv-body{display:none;padding:0 13px 13px;border-top:1px solid var(--bordure)}
+.ouvrage.open .ouv-body{display:block;animation:fade .2s}
+.mesures{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}
+.mesure{display:flex;align-items:center;gap:5px;background:#F3F4F6;border-radius:7px;padding:5px 5px 5px 11px;font-size:14px;font-weight:600}
+.mesure .mv{font-variant-numeric:tabular-nums;min-width:30px}
+.mesure .mx{width:22px;height:22px;border:none;background:rgba(0,0,0,.08);border-radius:5px;color:var(--gris);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mesure .mx:active{background:var(--rouge);color:#fff}
+.add-mesure{display:flex;gap:7px;align-items:stretch}
+.add-mesure input{flex:1;text-align:center;font-size:16px;font-weight:700}
+.add-mesure .btn{flex-shrink:0;padding:0 16px}
+.ouv-note{margin-top:10px}
+.ouv-note input{font-size:13px;padding:8px 10px;background:#FAFAFA}
+.ouv-sum{margin-top:11px;padding:9px 12px;background:#FEF2F2;border-radius:7px;font-size:13px;color:var(--rouge-fonce);font-weight:600;display:flex;justify-content:space-between;align-items:center}
+
+.section-lbl{font-size:11px;font-weight:800;color:var(--gris);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 9px;display:flex;align-items:center;gap:8px}
+.section-lbl::after{content:"";flex:1;height:1px;background:var(--bordure)}
+
+/* ===== TABLEAU CALCUL ===== */
+.calc-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--bordure);border-radius:var(--r);background:#fff;margin-bottom:11px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:480px}
+thead th{background:var(--noir);color:#fff;padding:10px 9px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;position:sticky;top:0}
+tbody td{padding:4px 6px;border-bottom:1px solid #EEF0F2;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.cat-row td{background:#F8F9FB;font-weight:800;color:var(--rouge);font-size:11px;text-transform:uppercase;letter-spacing:.4px;padding:8px 9px}
+tbody tr.total-row td{background:#FEF2F2;font-weight:800;color:var(--rouge-fonce);font-size:14px}
+td input,td select{padding:7px 8px;font-size:13.5px;border:1px solid transparent;background:transparent;border-radius:5px}
+td input:focus,td select:focus{background:#fff;border-color:var(--rouge);box-shadow:none}
+td input.num{text-align:right;font-variant-numeric:tabular-nums}
+td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-numeric:tabular-nums;white-space:nowrap;padding-right:11px}
+.row-del{width:30px;height:30px;border:none;background:transparent;color:var(--gris-clair);font-size:16px;cursor:pointer;border-radius:6px}
+.row-del:active{background:#FEE2E2;color:var(--rouge)}
+.grand-total{background:var(--noir);color:#fff;border-radius:var(--r);padding:15px 18px;display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.grand-total .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.6px;opacity:.7;font-weight:700}
+.grand-total .val{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+
+/* ===== EMPTY ===== */
+.empty{text-align:center;padding:50px 20px;color:var(--gris-clair)}
+.empty .em{font-size:46px;display:block;margin-bottom:14px;opacity:.5}
+.empty .t{font-weight:700;font-size:16px;color:var(--texte-doux);margin-bottom:6px}
+.empty .s{font-size:13.5px;line-height:1.5;max-width:280px;margin:0 auto 18px}
+
+/* ===== MODAL ===== */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:flex-end;justify-content:center;animation:fade .2s}
+.modal.show{display:flex}
+@media(min-width:600px){.modal{align-items:center}}
+.modal-box{background:#fff;border-radius:var(--r-lg) var(--r-lg) 0 0;padding:20px;width:100%;max-width:480px;box-shadow:var(--ombre-lg);animation:slideUp .3s;max-height:88vh;overflow-y:auto}
+@media(min-width:600px){.modal-box{border-radius:var(--r-lg)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.modal-box h2{font-size:19px;color:var(--noir);margin-bottom:4px;display:flex;align-items:center;gap:9px}
+.modal-box .sub{color:var(--gris);font-size:13.5px;margin-bottom:18px}
+.modal-actions{display:flex;gap:9px;margin-top:20px}
+.modal-actions .btn{flex:1}
+.type-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0}
+.type-opt{padding:16px 12px;border:2px solid var(--bordure);border-radius:var(--r);cursor:pointer;text-align:center;transition:.2s;font-weight:700}
+.type-opt .em{font-size:30px;display:block;margin-bottom:7px}
+.type-opt.sel{border-color:var(--rouge);background:#FEF2F2}
+.ch-list{display:flex;flex-direction:column;gap:8px;margin:6px 0}
+.ch-item{display:flex;align-items:center;gap:11px;padding:13px;border:1.5px solid var(--bordure);border-radius:var(--r);cursor:pointer;transition:.2s}
+.ch-item:active{background:#FAFAFA}
+.ch-item.active{border-color:var(--rouge);background:#FEF2F2}
+.ch-item .ci-ic{width:40px;height:40px;background:var(--rouge);color:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ch-item .ci-info{flex:1;min-width:0}
+.ch-item .ci-nom{font-weight:700;font-size:15px}
+.ch-item .ci-meta{font-size:12px;color:var(--gris)}
+.ch-item .ci-del{color:var(--gris-clair);font-size:18px;padding:6px}
+.add-ouv-list{display:flex;flex-direction:column;gap:7px;max-height:340px;overflow-y:auto;margin:6px -4px;padding:0 4px}
+.add-ouv-item{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1.5px solid var(--bordure);border-radius:9px;cursor:pointer;transition:.15s}
+.add-ouv-item:active{background:#FEF2F2;border-color:var(--rouge)}
+.add-ouv-item .em{font-size:18px}
+.add-ouv-item .nm{flex:1;font-weight:600;font-size:14px}
+.add-ouv-item .un{font-size:11px;color:var(--gris-clair);font-weight:700;text-transform:uppercase}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(100px);background:var(--noir);color:#fff;padding:12px 22px;border-radius:30px;font-weight:700;font-size:14px;z-index:200;box-shadow:var(--ombre-lg);opacity:0;transition:.3s;display:flex;align-items:center;gap:9px;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.ok{background:var(--succes)}
+.toast.err{background:var(--rouge)}
+
+.spin{width:40px;height:40px;border:3px solid var(--bordure);border-top-color:var(--rouge);border-radius:50%;animation:rot .7s linear infinite;margin:40px auto}
+@keyframes rot{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="header-in">
+      <img src="logo.png" alt="Couvr'Toit" class="logo" onerror="this.style.display='none'">
+      <div class="header-spacer"></div>
+      <div class="sync" id="sync" onclick="forceSync()">
+        <span class="dot"></span><span id="syncTxt">Synchro</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="chantier-zone">
+    <button class="ch-current" onclick="openChantiers()">
+      <span>🏠</span><span id="chNom">Aucun chantier</span><span class="chev">▼</span>
+    </button>
+    <span class="ch-meta" id="chMeta"></span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-p="metre" onclick="goTab('metre',this)"><span class="ic">📐</span><span class="lb">Métré</span></button>
+    <button class="tab" data-p="calcul" onclick="goTab('calcul',this)"><span class="ic">🧮</span><span class="lb">Calcul</span></button>
+    <button class="tab" data-p="materiel" onclick="goTab('materiel',this)"><span class="ic">📦</span><span class="lb">Matériel</span></button>
+    <button class="tab" data-p="brouillon" onclick="goTab('brouillon',this)"><span class="ic">📝</span><span class="lb">Notes</span></button>
+  </div>
+
+  <div class="content" id="content">
+    <div id="noChantier" class="empty" style="display:none">
+      <span class="em">🏗️</span>
+      <div class="t">Bienvenue chez Couvr'Toit</div>
+      <div class="s">Créez votre premier chantier pour commencer vos métrés et quantitatifs.</div>
+      <button class="btn btn-primary" onclick="openNewChantier()">➕ Créer un chantier</button>
+    </div>
+
+    <!-- ===== MÉTRÉ ===== -->
+    <div class="page active" id="page-metre">
+      <div class="notes-box">
+        <label>⚡ Note rapide chantier (métré)</label>
+        <textarea id="note-metre" placeholder="Accès, particularités, état toiture, urgences..." oninput="markDirty()"></textarea>
+      </div>
+      <div class="toit-tabs" id="toitTabs"></div>
+      <div id="metreContent"></div>
+    </div>
+
+    <!-- ===== CALCUL ===== -->
+    <div class="page" id="page-calcul">
+      <div class="notes-box">
+        <label>⚡ Note rapide (bureau / calcul)</label>
+        <textarea id="note-calcul" placeholder="Ajustements, remarques devis, coefficients..." oninput="markDirty()"></textarea>
+      </div>
+      <div class="calc-toolbar">
+        <button class="btn btn-primary btn-sm" onclick="importMetre()">📥 Importer le métré</button>
+        <button class="btn btn-ghost btn-sm" onclick="addCalcRow()">➕ Ligne</button>
+        <button class="btn btn-gris btn-sm" onclick="addCalcCat()">📁 Catégorie</button>
+      </div>
+      <div class="tbl-wrap">
+        <table id="calcTable">
+          <thead><tr><th style="width:38%">Ouvrage</th><th style="width:13%">Unité</th><th style="width:16%">Qté</th><th style="width:13%">Chute</th><th style="width:16%">Total</th><th style="width:4%"></th></tr></thead>
+          <tbody id="calcBody"></tbody>
+        </table>
+      </div>
+      <div class="grand-total"><span class="lbl">Postes chiffrés</span><span class="val" id="calcCount">0</span></div>
+    </div>
+
+    <!-- ===== MATÉRIEL ===== -->
+    <div class="page" id="page-materiel">
+      <div class="notes-box">
+        <label>⚡ Note rapide (matériel / commande)</label>
+        <textarea id="note-materiel" placeholder="Fournisseur préféré, délais, contacts..." oninput="markDirty()"></textarea>
+      </div>
+      <div class="calc-toolbar">
+        <button class="btn btn-primary btn-sm" onclick="addMatRow()">➕ Article</button>
+        <button class="btn btn-ghost btn-sm" onclick="suggestMat()">💡 Suggérer depuis calcul</button>
+      </div>
+      <div class="tbl-wrap">
+        <table id="matTable">
+          <thead><tr><th style="width:34%">Article</th><th style="width:14%">Qté</th><th style="width:12%">Unité</th><th style="width:26%">Fournisseur</th><th style="width:10%">✓</th><th style="width:4%"></th></tr></thead>
+          <tbody id="matBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== BROUILLON / NOTES ===== -->
+    <div class="page" id="page-brouillon">
+      <div class="card">
+        <div class="card-head"><span class="ic">📋</span>Informations chantier</div>
+        <div class="card-body">
+          <div class="fg"><label>Nom du client</label><input id="info-client" placeholder="Nom / société" oninput="markDirty()"></div>
+          <div class="fg"><label>Adresse du chantier</label><input id="info-adresse" placeholder="Rue, ville" oninput="markDirty()"></div>
+          <div class="grid2">
+            <div class="fg"><label>Téléphone</label><input id="info-tel" type="tel" placeholder="06..." oninput="markDirty()"></div>
+            <div class="fg"><label>Date visite</label><input id="info-date" type="date" oninput="markDirty()"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="ic">📝</span>Bloc-notes libre</div>
+        <div class="card-body">
+          <textarea id="note-libre" style="min-height:200px" placeholder="Notez tout ce que vous voulez ici : observations détaillées, mesures diverses, rappels, croquis textuels..." oninput="markDirty()"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="fab-save" id="fabSave" onclick="saveNow()" style="display:none">💾 Enregistrer</button>
+<div class="toast" id="toast"></div>
+
+<!-- MODALS -->
+<div class="modal" id="mChantiers">
+  <div class="modal-box">
+    <h2>🏠 Mes chantiers</h2>
+    <div class="sub">Sélectionnez ou créez un chantier</div>
+    <div class="ch-list" id="chList"></div>
+    <button class="btn btn-primary btn-full" style="margin-top:14px" onclick="openNewChantier()">➕ Nouveau chantier</button>
+    <button class="btn btn-gris btn-full" style="margin-top:8px" onclick="closeModal('mChantiers')">Fermer</button>
+  </div>
+</div>
+
+<div class="modal" id="mNewChantier">
+  <div class="modal-box">
+    <h2>➕ Nouveau chantier</h2>
+    <div class="sub">Donnez un nom pour le retrouver facilement</div>
+    <div class="fg"><label>Nom du chantier *</label><input id="newChNom" placeholder="Ex: Maison Dupont - Rue de la Paix"></div>
+    <div class="fg"><label>Client (optionnel)</label><input id="newChClient" placeholder="Nom du client"></div>
+    <div class="modal-actions">
+      <button class="btn btn-gris" onclick="closeModal('mNewChantier')">Annuler</button>
+      <button class="btn btn-primary" onclick="createChantier()">Créer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="mNewToit">
+  <div class="modal-box">
+    <h2>🏗️ Nouvelle toiture</h2>
+    <div class="sub">Type de couverture de ce bâtiment</div>
+    <div class="fg"><label>Nom (optionnel)</label><input id="newToitNom" placeholder="Ex: Bâtiment principal, Garage..."></div>
+    <label class="fg" style="margin-bottom:6px">Type de couverture *</label>
+    <div class="type-pick" id="typePick"></div>
+    <div class="modal-actions">
+      <button class="btn btn-gris" onclick="closeModal('mNewToit')">Annuler</button>
+      <button class="btn btn-primary" onclick="createToit()">Créer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="mAddOuv">
+  <div class="modal-box">
+    <h2>➕ Ajouter un ouvrage</h2>
+    <div class="sub" id="addOuvSub">Sélectionnez l'ouvrage à ajouter</div>
+    <div class="add-ouv-list" id="addOuvList"></div>
+    <div class="section-lbl" style="margin-top:14px">Ou ouvrage personnalisé</div>
+    <div class="grid2">
+      <div class="fg"><label>Nom</label><input id="customOuvNom" placeholder="Nom ouvrage"></div>
+      <div class="fg"><label>Unité</label>
+        <select id="customOuvUnite"><option value="ml">ml</option><option value="m²">m²</option><option value="u">u</option><option value="kg">kg</option><option value="forfait">forfait</option></select>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-full" onclick="addCustomOuv()">➕ Ajouter cet ouvrage perso</button>
+    <button class="btn btn-gris btn-full" style="margin-top:8px" onclick="closeModal('mAddOuv')">Fermer</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============================================================
+   COUVR'TOIT — Métré & Quantitatifs · V2
+   ============================================================ */
+const SB_URL='https://sfndmuvytdlmijgjgpke.supabase.co';
+const SB_KEY='sb_publishable_4XFQF1Obgo1PRGx0rcBnHg__Sy-M4yb';
+let sb=null;
+try{sb=window.supabase.createClient(SB_URL,SB_KEY)}catch(e){console.warn('Supabase init KO',e)}
+
+/* ---------- CATALOGUE OUVRAGES PAR TYPE ---------- */
+/* unité: ml=mètre linéaire, m²=surface, u=unité, kg, forfait */
+const TYPES={
+  tuile:{nom:'Tuile',em:'🟧',cls:'type-tuile'},
+  zinc:{nom:'Zinc',em:'⬜',cls:'type-zinc'},
+  ardoise:{nom:'Ardoise',em:'⬛',cls:'type-ardoise'},
+  bac:{nom:'Bac acier',em:'🟦',cls:'type-bac'}
+};
+const CATALOGUE={
+  tuile:[
+    {n:'Couverture tuile',u:'m²',e:'🟧'},
+    {n:'Écran sous-toiture',u:'m²',e:'📜'},
+    {n:'Contre-lattage',u:'ml',e:'➖'},
+    {n:'Liteaunage',u:'m²',e:'⬛'},
+    {n:'Faîtage',u:'ml',e:'🔺'},
+    {n:'Arêtier',u:'ml',e:'📐'},
+    {n:'Faîtage monopente',u:'ml',e:'📏'},
+    {n:'Noue',u:'ml',e:'〽️'},
+    {n:'Rive',u:'ml',e:'📋'},
+    {n:'Solin',u:'ml',e:'🧱'},
+    {n:'Solin de cheminée',u:'ml',e:'🏛️'},
+    {n:'Chatière',u:'u',e:'🔲'},
+    {n:'Gouttière',u:'ml',e:'🌊'},
+    {n:'Bande d\'égout',u:'ml',e:'➰'},
+    {n:'Entablement',u:'ml',e:'📦'},
+    {n:'Chéneau',u:'ml',e:'💧'},
+    {n:'Descente EP',u:'ml',e:'🚰'},
+    {n:'Fenêtre de toit',u:'u',e:'🪟'},
+    {n:'Couvertine',u:'ml',e:'🎩'},
+    {n:'Isolation',u:'m²',e:'🧊'},
+    {n:'Jouée en zinc',u:'ml',e:'🔧'}
+  ],
+  zinc:[
+    {n:'Couverture zinc',u:'m²',e:'⬜'},
+    {n:'Voligeage',u:'m²',e:'🪵'},
+    {n:'Écran sous-toiture',u:'m²',e:'📜'},
+    {n:'Faîtage / double pli',u:'ml',e:'🔺'},
+    {n:'Arêtier',u:'ml',e:'📐'},
+    {n:'Joint debout',u:'ml',e:'📏'},
+    {n:'Soudure',u:'ml',e:'🔥'},
+    {n:'Noue',u:'ml',e:'〽️'},
+    {n:'Rive / pince',u:'ml',e:'📋'},
+    {n:'Solin',u:'ml',e:'🧱'},
+    {n:'Solin de cheminée',u:'ml',e:'🏛️'},
+    {n:'Habillage cheminée',u:'u',e:'🏠'},
+    {n:'Bande d\'égout',u:'ml',e:'➰'},
+    {n:'Gouttière zinc',u:'ml',e:'🌊'},
+    {n:'Chéneau zinc',u:'ml',e:'💧'},
+    {n:'Descente EP',u:'ml',e:'🚰'},
+    {n:'Couvertine',u:'ml',e:'🎩'},
+    {n:'Fenêtre de toit',u:'u',e:'🪟'},
+    {n:'Jouée en zinc',u:'ml',e:'🔧'},
+    {n:'Isolation',u:'m²',e:'🧊'}
+  ],
+  ardoise:[
+    {n:'Couverture ardoise',u:'m²',e:'⬛'},
+    {n:'Crochets',u:'u',e:'🪝'},
+    {n:'Écran sous-toiture',u:'m²',e:'📜'},
+    {n:'Voligeage',u:'m²',e:'🪵'},
+    {n:'Liteaunage',u:'m²',e:'➖'},
+    {n:'Faîtage',u:'ml',e:'🔺'},
+    {n:'Arêtier',u:'ml',e:'📐'},
+    {n:'Noue',u:'ml',e:'〽️'},
+    {n:'Rive',u:'ml',e:'📋'},
+    {n:'Solin',u:'ml',e:'🧱'},
+    {n:'Solin de cheminée',u:'ml',e:'🏛️'},
+    {n:'Chatière',u:'u',e:'🔲'},
+    {n:'Gouttière',u:'ml',e:'🌊'},
+    {n:'Bande d\'égout',u:'ml',e:'➰'},
+    {n:'Chéneau',u:'ml',e:'💧'},
+    {n:'Descente EP',u:'ml',e:'🚰'},
+    {n:'Fenêtre de toit',u:'u',e:'🪟'},
+    {n:'Couvertine',u:'ml',e:'🎩'},
+    {n:'Isolation',u:'m²',e:'🧊'}
+  ],
+  bac:[
+    {n:'Bac acier couverture',u:'m²',e:'🟦'},
+    {n:'Bac acier isolé (sandwich)',u:'m²',e:'🥪'},
+    {n:'Étanchéité / membrane',u:'m²',e:'📜'},
+    {n:'Film bitumineux',u:'m²',e:'🎞️'},
+    {n:'Faîtage pliée',u:'ml',e:'🔺'},
+    {n:'Arêtier',u:'ml',e:'📐'},
+    {n:'Noue',u:'ml',e:'〽️'},
+    {n:'Rive / tôle de rive',u:'ml',e:'📋'},
+    {n:'Bande d\'égout',u:'ml',e:'➰'},
+    {n:'Solin',u:'ml',e:'🧱'},
+    {n:'Solin de cheminée',u:'ml',e:'🏛️'},
+    {n:'Closoir',u:'ml',e:'🔲'},
+    {n:'Habillage latéral',u:'ml',e:'🏠'},
+    {n:'Gouttière',u:'ml',e:'🌊'},
+    {n:'Chéneau',u:'ml',e:'💧'},
+    {n:'Descente EP',u:'ml',e:'🚰'},
+    {n:'Couvertine',u:'ml',e:'🎩'},
+    {n:'Fenêtre de toit',u:'u',e:'🪟'},
+    {n:'Vis / fixations',u:'u',e:'🔩'},
+    {n:'Isolation',u:'m²',e:'🧊'}
+  ]
+};
+/* chute conseillée par défaut selon unité (%) */
+const CHUTE_DEF={'m²':10,'ml':5,'u':0,'kg':5,'forfait':0};
+
+/* ---------- ÉTAT ---------- */
+let userId=localStorage.getItem('ct_uid');
+if(!userId){userId='ct_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);localStorage.setItem('ct_uid',userId);}
+let chantiers=[];
+let cur=null;            // chantier courant (objet complet)
+let curToit=null;        // id toiture courante
+let dirty=false;
+let saveTimer=null;
+let activeTab='metre';
+
+/* ---------- HELPERS ---------- */
+const $=id=>document.getElementById(id);
+const fmt=n=>{n=Number(n)||0;return n.toLocaleString('fr-FR',{maximumFractionDigits:2})};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function toast(msg,type=''){const t=$('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',2200)}
+function openModal(id){$(id).classList.add('show')}
+function closeModal(id){$(id).classList.remove('show')}
+function markDirty(){dirty=true;$('fabSave').style.display='flex';scheduleSave()}
+function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveNow,2500)}
+
+/* ---------- STRUCTURE CHANTIER ----------
+cur = {id,user_id,nom,...,data:{
+  toitures:[{id,nom,type,ouvrages:[{id,nom,unite,em,mesures:[],note}]}],
+  calcul:[{id,type:'cat'|'row',nom,unite,qte,chute}],
+  materiel:[{id,nom,qte,unite,fournisseur,ok}],
+  notes:{metre,calcul,materiel,libre,client,adresse,tel,date}
+}}
+------------------------------------------- */
+function blankData(){return{toitures:[],calcul:[],materiel:[],notes:{metre:'',calcul:'',materiel:'',libre:'',client:'',adresse:'',tel:'',date:''}}}
+
+/* ============================================================
+   CHARGEMENT
+   ============================================================ */
+async function init(){
+  renderTypePick();
+  if(!sb){toast('Mode hors-ligne','err');loadLocal();return}
+  try{
+    const{data,error}=await sb.from('chantiers').select('*').eq('user_id',userId).order('updated_at',{ascending:false});
+    if(error)throw error;
+    chantiers=data||[];
+    if(chantiers.length){selectChantier(chantiers[0]);}
+    else{showNoChantier();}
+    setupRealtime();
+    setSync(true);
+  }catch(e){console.error(e);toast('Connexion limitée','err');loadLocal();}
+}
+function loadLocal(){
+  const raw=localStorage.getItem('ct_chantiers');
+  chantiers=raw?JSON.parse(raw):[];
+  if(chantiers.length)selectChantier(chantiers[0]);else showNoChantier();
+}
+function saveLocal(){localStorage.setItem('ct_chantiers',JSON.stringify(chantiers))}
+
+function showNoChantier(){
+  cur=null;
+  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+  $('noChantier').style.display='block';
+  $('chNom').textContent='Aucun chantier';
+  $('chMeta').textContent='';
+}
+function selectChantier(ch){
+  cur=ch;
+  if(!cur.data)cur.data=blankData();
+  // garantir structure
+  cur.data=Object.assign(blankData(),cur.data);
+  if(!cur.data.notes)cur.data.notes=blankData().notes;
+  curToit=cur.data.toitures[0]?cur.data.toitures[0].id:null;
+  $('noChantier').style.display='none';
+  goTab(activeTab);
+  $('chNom').textContent=cur.nom;
+  renderAll();
+  closeModal('mChantiers');
+}
+function renderAll(){
+  if(!cur)return;
+  // notes
+  const n=cur.data.notes;
+  $('note-metre').value=n.metre||'';
+  $('note-calcul').value=n.calcul||'';
+  $('note-materiel').value=n.materiel||'';
+  $('note-libre').value=n.libre||'';
+  $('info-client').value=n.client||'';
+  $('info-adresse').value=n.adresse||'';
+  $('info-tel').value=n.tel||'';
+  $('info-date').value=n.date||'';
+  renderToitTabs();
+  renderMetre();
+  renderCalc();
+  renderMat();
+  updateMeta();
+}
+function updateMeta(){
+  if(!cur)return;
+  const nt=cur.data.toitures.length;
+  const np=cur.data.calcul.filter(r=>r.type==='row').length;
+  $('chMeta').textContent=`${nt} toiture${nt>1?'s':''} · ${np} poste${np>1?'s':''}`;
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+function goTab(p,el){
+  activeTab=p;
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  if(cur){$('page-'+p).classList.add('active');$('noChantier').style.display='none';}
+  else{$('noChantier').style.display='block';}
+  if(el)el.classList.add('active');
+  else document.querySelector(`.tab[data-p="${p}"]`)?.classList.add('active');
+}
+
+/* ============================================================
+   CHANTIERS
+   ============================================================ */
+function openChantiers(){
+  const list=$('chList');list.innerHTML='';
+  if(!chantiers.length){list.innerHTML='<div style="text-align:center;color:#9E9E9E;padding:20px">Aucun chantier</div>';}
+  chantiers.forEach(ch=>{
+    const nt=ch.data?.toitures?.length||0;
+    const d=document.createElement('div');
+    d.className='ch-item'+(cur&&cur.id===ch.id?' active':'');
+    d.innerHTML=`<div class="ci-ic">🏠</div><div class="ci-info"><div class="ci-nom"></div><div class="ci-meta">${nt} toiture${nt>1?'s':''}</div></div><div class="ci-del" onclick="event.stopPropagation();delChantier('${ch.id}')">🗑️</div>`;
+    d.querySelector('.ci-nom').textContent=ch.nom;
+    d.onclick=()=>selectChantier(ch);
+    list.appendChild(d);
+  });
+  openModal('mChantiers');
+}
+function openNewChantier(){closeModal('mChantiers');$('newChNom').value='';$('newChClient').value='';openModal('mNewChantier');setTimeout(()=>$('newChNom').focus(),200)}
+async function createChantier(){
+  const nom=$('newChNom').value.trim();
+  if(!nom){toast('Nom requis','err');return}
+  const data=blankData();
+  data.notes.client=$('newChClient').value.trim();
+  const obj={user_id:userId,nom,data};
+  closeModal('mNewChantier');
+  if(sb){
+    try{
+      const{data:ins,error}=await sb.from('chantiers').insert([obj]).select();
+      if(error)throw error;
+      chantiers.unshift(ins[0]);selectChantier(ins[0]);toast('Chantier créé','ok');return;
+    }catch(e){console.error(e)}
+  }
+  obj.id=uid();obj.updated_at=new Date().toISOString();
+  chantiers.unshift(obj);saveLocal();selectChantier(obj);toast('Chantier créé (local)','ok');
+}
+async function delChantier(id){
+  if(!confirm('Supprimer ce chantier et tout son contenu ?'))return;
+  if(sb){try{await sb.from('chantiers').delete().eq('id',id)}catch(e){console.error(e)}}
+  chantiers=chantiers.filter(c=>c.id!==id);saveLocal();
+  if(cur&&cur.id===id){if(chantiers.length)selectChantier(chantiers[0]);else{showNoChantier();closeModal('mChantiers');}}
+  else openChantiers();
+  toast('Chantier supprimé');
+}
+
+/* ============================================================
+   MÉTRÉ — TOITURES
+   ============================================================ */
+function renderTypePick(){
+  const box=$('typePick');box.innerHTML='';
+  Object.entries(TYPES).forEach(([k,v])=>{
+    const d=document.createElement('div');
+    d.className='type-opt';d.dataset.type=k;
+    d.innerHTML=`<span class="em">${v.em}</span>${v.nom}`;
+    d.onclick=()=>{document.querySelectorAll('.type-opt').forEach(x=>x.classList.remove('sel'));d.classList.add('sel')};
+    box.appendChild(d);
+  });
+}
+function renderToitTabs(){
+  const box=$('toitTabs');box.innerHTML='';
+  cur.data.toitures.forEach(t=>{
+    const tp=TYPES[t.type];
+    const c=document.createElement('div');
+    c.className='toit-chip'+(curToit===t.id?' active':'');
+    c.innerHTML=`<span>${tp.em}</span><span></span><span class="x" onclick="event.stopPropagation();delToit('${t.id}')">×</span>`;
+    c.querySelector('span:nth-child(2)').textContent=t.nom||tp.nom;
+    c.onclick=()=>{curToit=t.id;renderToitTabs();renderMetre()};
+    box.appendChild(c);
+  });
+  const add=document.createElement('button');
+  add.className='toit-add';add.innerHTML='➕ Toiture';add.onclick=openNewToit;
+  box.appendChild(add);
+}
+let pendingType=null;
+function openNewToit(){$('newToitNom').value='';document.querySelectorAll('.type-opt').forEach(x=>x.classList.remove('sel'));openModal('mNewToit')}
+function createToit(){
+  const sel=document.querySelector('.type-opt.sel');
+  if(!sel){toast('Choisissez un type','err');return}
+  const type=sel.dataset.type;
+  const nom=$('newToitNom').value.trim();
+  const t={id:uid(),nom,type,ouvrages:[]};
+  // pré-remplir avec ouvrages les plus courants (les 6 premiers du catalogue)
+  CATALOGUE[type].slice(0,6).forEach(o=>{
+    t.ouvrages.push({id:uid(),nom:o.n,unite:o.u,em:o.e,mesures:[],note:''});
+  });
+  cur.data.toitures.push(t);
+  curToit=t.id;
+  closeModal('mNewToit');
+  renderToitTabs();renderMetre();updateMeta();markDirty();
+  toast('Toiture ajoutée','ok');
+}
+function delToit(id){
+  if(!confirm('Supprimer cette toiture ?'))return;
+  cur.data.toitures=cur.data.toitures.filter(t=>t.id!==id);
+  if(curToit===id)curToit=cur.data.toitures[0]?cur.data.toitures[0].id:null;
+  renderToitTabs();renderMetre();updateMeta();markDirty();
+}
+
+function renderMetre(){
+  const box=$('metreContent');box.innerHTML='';
+  if(!cur.data.toitures.length){
+    box.innerHTML='<div class="empty"><span class="em">📐</span><div class="t">Aucune toiture</div><div class="s">Ajoutez une toiture et son type pour lister tous les ouvrages à métrer.</div><button class="btn btn-primary" onclick="openNewToit()">➕ Première toiture</button></div>';
+    return;
+  }
+  const t=cur.data.toitures.find(x=>x.id===curToit);
+  if(!t)return;
+  const tp=TYPES[t.type];
+  const banner=document.createElement('div');
+  banner.className='type-banner '+tp.cls;
+  banner.innerHTML=`<span class="em">${tp.em}</span><div><div>${t.nom||tp.nom}</div><div style="font-size:11px;opacity:.85;font-weight:600">Couverture ${tp.nom}</div></div>`;
+  box.appendChild(banner);
+
+  t.ouvrages.forEach(o=>box.appendChild(ouvrageCard(o,t)));
+
+  const addBtn=document.createElement('button');
+  addBtn.className='btn btn-ghost btn-full';addBtn.style.marginTop='6px';
+  addBtn.innerHTML='➕ Ajouter un ouvrage';
+  addBtn.onclick=()=>openAddOuv(t);
+  box.appendChild(addBtn);
+
+  // récap toiture
+  const recap=document.createElement('div');
+  recap.className='grand-total';recap.style.marginTop='13px';
+  const nb=t.ouvrages.filter(o=>sumMes(o.mesures)>0).length;
+  recap.innerHTML=`<span class="lbl">${tp.nom} · ouvrages remplis</span><span class="val">${nb}/${t.ouvrages.length}</span>`;
+  box.appendChild(recap);
+}
+function sumMes(arr){return(arr||[]).reduce((a,b)=>a+(Number(b)||0),0)}
+function ouvrageCard(o,t){
+  const total=sumMes(o.mesures);
+  const card=document.createElement('div');
+  card.className='ouvrage'+(total>0?' has-val':'');
+  card.dataset.id=o.id;
+  card.innerHTML=`
+    <div class="ouv-head" onclick="toggleOuv(this)">
+      <span class="em">${o.em||'🔹'}</span>
+      <div class="ouv-info"><div class="ouv-nom"></div><div class="ouv-unite">${o.unite}</div></div>
+      <div class="ouv-total"><div class="v ${total>0?'':'zero'}">${total>0?fmt(total):'—'}</div><div class="u">${o.unite}</div></div>
+      <span class="ouv-chev">▶</span>
+    </div>
+    <div class="ouv-body">
+      <div class="mesures"></div>
+      <div class="add-mesure">
+        <input type="number" inputmode="decimal" step="0.01" placeholder="Mesure en ${o.unite}" onkeydown="if(event.key==='Enter')addMesure(this,'${t.id}','${o.id}')">
+        <button class="btn btn-primary" onclick="addMesure(this.previousElementSibling,'${t.id}','${o.id}')">+</button>
+      </div>
+      <div class="ouv-sum"><span>Total ${o.nom}</span><span><b>${fmt(total)}</b> ${o.unite}</span></div>
+      <div class="ouv-note"><input placeholder="📝 Note sur cet ouvrage (localisation, accès...)" value="" oninput="ouvNote('${t.id}','${o.id}',this.value)"></div>
+      <button class="btn btn-gris btn-sm btn-full" style="margin-top:9px" onclick="delOuv('${t.id}','${o.id}')">🗑️ Retirer cet ouvrage</button>
+    </div>`;
+  card.querySelector('.ouv-nom').textContent=o.nom;
+  card.querySelector('.ouv-note input').value=o.note||'';
+  // mesures
+  const mb=card.querySelector('.mesures');
+  (o.mesures||[]).forEach((m,i)=>{
+    const chip=document.createElement('div');chip.className='mesure';
+    chip.innerHTML=`<span class="mv">${fmt(m)}</span><button class="mx" onclick="delMesure('${t.id}','${o.id}',${i})">×</button>`;
+    mb.appendChild(chip);
+  });
+  if(!o.mesures||!o.mesures.length){mb.innerHTML='<span style="color:#9E9E9E;font-size:13px">Aucune mesure — ajoutez vos relevés un par un, ils s\'additionnent.</span>';}
+  return card;
+}
+function toggleOuv(head){head.parentElement.classList.toggle('open')}
+function addMesure(inp,tid,oid){
+  const v=parseFloat(inp.value);
+  if(isNaN(v)||v<=0){toast('Valeur invalide','err');return}
+  const t=cur.data.toitures.find(x=>x.id===tid);
+  const o=t.ouvrages.find(x=>x.id===oid);
+  o.mesures.push(v);
+  inp.value='';
+  refreshOuv(tid,oid);markDirty();
+  setTimeout(()=>inp.focus(),50);
+}
+function delMesure(tid,oid,i){
+  const t=cur.data.toitures.find(x=>x.id===tid);
+  const o=t.ouvrages.find(x=>x.id===oid);
+  o.mesures.splice(i,1);refreshOuv(tid,oid);markDirty();
+}
+function ouvNote(tid,oid,val){
+  const t=cur.data.toitures.find(x=>x.id===tid);
+  const o=t.ouvrages.find(x=>x.id===oid);o.note=val;markDirty();
+}
+function refreshOuv(tid,oid){
+  const t=cur.data.toitures.find(x=>x.id===tid);
+  const o=t.ouvrages.find(x=>x.id===oid);
+  const card=document.querySelector(`.ouvrage[data-id="${oid}"]`);
+  const wasOpen=card.classList.contains('open');
+  const nc=ouvrageCard(o,t);
+  if(wasOpen)nc.classList.add('open');
+  card.replaceWith(nc);
+}
+function delOuv(tid,oid){
+  const t=cur.data.toitures.find(x=>x.id===tid);
+  t.ouvrages=t.ouvrages.filter(o=>o.id!==oid);
+  renderMetre();updateMeta();markDirty();
+}
+let addOuvTarget=null;
+function openAddOuv(t){
+  addOuvTarget=t;
+  $('addOuvSub').textContent=`Ouvrages disponibles · ${TYPES[t.type].nom}`;
+  const list=$('addOuvList');list.innerHTML='';
+  const present=new Set(t.ouvrages.map(o=>o.nom));
+  CATALOGUE[t.type].forEach(o=>{
+    if(present.has(o.n))return;
+    const d=document.createElement('div');d.className='add-ouv-item';
+    d.innerHTML=`<span class="em">${o.e}</span><span class="nm"></span><span class="un">${o.u}</span>`;
+    d.querySelector('.nm').textContent=o.n;
+    d.onclick=()=>{t.ouvrages.push({id:uid(),nom:o.n,unite:o.u,em:o.e,mesures:[],note:''});closeModal('mAddOuv');renderMetre();updateMeta();markDirty();toast('Ouvrage ajouté','ok')};
+    list.appendChild(d);
+  });
+  if(!list.children.length)list.innerHTML='<div style="text-align:center;color:#9E9E9E;padding:14px;font-size:13px">Tous les ouvrages standards sont déjà ajoutés. Utilisez l\'ouvrage personnalisé ci-dessous.</div>';
+  $('customOuvNom').value='';
+  openModal('mAddOuv');
+}
+function addCustomOuv(){
+  const nom=$('customOuvNom').value.trim();
+  if(!nom){toast('Nom requis','err');return}
+  const unite=$('customOuvUnite').value;
+  addOuvTarget.ouvrages.push({id:uid(),nom,unite,em:'🔧',mesures:[],note:''});
+  closeModal('mAddOuv');renderMetre();updateMeta();markDirty();toast('Ouvrage perso ajouté','ok');
+}
+
+/* ============================================================
+   CALCUL (tableau libre, copie indépendante)
+   ============================================================ */
+function renderCalc(){
+  const tb=$('calcBody');tb.innerHTML='';
+  if(!cur.data.calcul.length){
+    tb.innerHTML='<tr><td colspan="6"><div class="empty" style="padding:30px 10px"><span class="em">🧮</span><div class="t">Tableau vide</div><div class="s">Importez votre métré ou ajoutez des lignes manuellement. Ici vous êtes libre comme dans Excel.</div></div></td></tr>';
+    $('calcCount').textContent='0';return;
+  }
+  cur.data.calcul.forEach(r=>{
+    if(r.type==='cat'){
+      const tr=document.createElement('tr');tr.className='cat-row';
+      tr.innerHTML=`<td colspan="5"><input value="" style="font-weight:800;color:var(--rouge);text-transform:uppercase" oninput="calcEdit('${r.id}','nom',this.value)"></td><td><button class="row-del" onclick="calcDel('${r.id}')">×</button></td>`;
+      tr.querySelector('input').value=r.nom||'';
+      tb.appendChild(tr);
+    }else{
+      const total=(Number(r.qte)||0)*(1+(Number(r.chute)||0)/100);
+      const tr=document.createElement('tr');
+      tr.innerHTML=`
+        <td><input value="" oninput="calcEdit('${r.id}','nom',this.value)"></td>
+        <td><input value="${r.unite||''}" style="width:100%" oninput="calcEdit('${r.id}','unite',this.value)"></td>
+        <td><input class="num" type="number" inputmode="decimal" step="0.01" value="${r.qte??''}" oninput="calcEdit('${r.id}','qte',this.value);calcRowTotal(this)"></td>
+        <td><input class="num" type="number" inputmode="decimal" step="1" value="${r.chute??''}" oninput="calcEdit('${r.id}','chute',this.value);calcRowTotal(this)" style="width:56px">%</td>
+        <td class="calc-total">${fmt(total)}</td>
+        <td><button class="row-del" onclick="calcDel('${r.id}')">×</button></td>`;
+      tr.querySelector('input').value=r.nom||'';
+      tb.appendChild(tr);
+    }
+  });
+  $('calcCount').textContent=cur.data.calcul.filter(r=>r.type==='row').length;
+  updateMeta();
+}
+function calcRowTotal(inp){
+  const tr=inp.closest('tr');
+  const qte=parseFloat(tr.cells[2].querySelector('input').value)||0;
+  const chute=parseFloat(tr.cells[3].querySelector('input').value)||0;
+  tr.querySelector('.calc-total').textContent=fmt(qte*(1+chute/100));
+}
+function calcEdit(id,field,val){
+  const r=cur.data.calcul.find(x=>x.id===id);if(!r)return;
+  r[field]=(field==='qte'||field==='chute')?val:val;markDirty();
+  if(field==='qte'||field==='chute')updateMeta();
+}
+function calcDel(id){cur.data.calcul=cur.data.calcul.filter(r=>r.id!==id);renderCalc();markDirty()}
+function addCalcRow(){cur.data.calcul.push({id:uid(),type:'row',nom:'',unite:'ml',qte:'',chute:5});renderCalc();markDirty();const inps=$('calcBody').querySelectorAll('tr:last-child input');if(inps[0])inps[0].focus()}
+function addCalcCat(){cur.data.calcul.push({id:uid(),type:'cat',nom:'Nouvelle catégorie'});renderCalc();markDirty()}
+function importMetre(){
+  if(!cur.data.toitures.length){toast('Aucun métré à importer','err');return}
+  if(cur.data.calcul.length&&!confirm('Remplacer le tableau actuel par le métré ?'))return;
+  const rows=[];
+  cur.data.toitures.forEach(t=>{
+    const tp=TYPES[t.type];
+    const filled=t.ouvrages.filter(o=>sumMes(o.mesures)>0);
+    if(!filled.length)return;
+    rows.push({id:uid(),type:'cat',nom:`${t.nom||tp.nom} (${tp.nom})`});
+    filled.forEach(o=>{
+      rows.push({id:uid(),type:'row',nom:o.nom,unite:o.unite,qte:+sumMes(o.mesures).toFixed(2),chute:CHUTE_DEF[o.unite]??5});
+    });
+  });
+  if(!rows.length){toast('Aucune mesure saisie','err');return}
+  cur.data.calcul=rows;renderCalc();markDirty();toast('Métré importé ✓','ok');
+}
+
+/* ============================================================
+   MATÉRIEL
+   ============================================================ */
+function renderMat(){
+  const tb=$('matBody');tb.innerHTML='';
+  if(!cur.data.materiel.length){
+    tb.innerHTML='<tr><td colspan="6"><div class="empty" style="padding:30px 10px"><span class="em">📦</span><div class="t">Liste vide</div><div class="s">Ajoutez vos articles à commander ou générez-les depuis le calcul.</div></div></td></tr>';return;
+  }
+  cur.data.materiel.forEach(m=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><input value="" oninput="matEdit('${m.id}','nom',this.value)"></td>
+      <td><input class="num" type="number" inputmode="decimal" step="0.01" value="${m.qte??''}" oninput="matEdit('${m.id}','qte',this.value)"></td>
+      <td><input value="${m.unite||''}" oninput="matEdit('${m.id}','unite',this.value)"></td>
+      <td><input value="" oninput="matEdit('${m.id}','fournisseur',this.value)"></td>
+      <td style="text-align:center"><input type="checkbox" ${m.ok?'checked':''} style="width:20px;height:20px" onchange="matEdit('${m.id}','ok',this.checked)"></td>
+      <td><button class="row-del" onclick="matDel('${m.id}')">×</button></td>`;
+    tr.cells[0].querySelector('input').value=m.nom||'';
+    tr.cells[3].querySelector('input').value=m.fournisseur||'';
+    tb.appendChild(tr);
+  });
+}
+function matEdit(id,f,v){const m=cur.data.materiel.find(x=>x.id===id);if(m){m[f]=v;markDirty()}}
+function matDel(id){cur.data.materiel=cur.data.materiel.filter(m=>m.id!==id);renderMat();markDirty()}
+function addMatRow(){cur.data.materiel.push({id:uid(),nom:'',qte:'',unite:'',fournisseur:'',ok:false});renderMat();markDirty();const i=$('matBody').querySelector('tr:last-child input');if(i)i.focus()}
+function suggestMat(){
+  const rows=cur.data.calcul.filter(r=>r.type==='row'&&r.nom);
+  if(!rows.length){toast('Calcul vide','err');return}
+  rows.forEach(r=>{
+    const total=(Number(r.qte)||0)*(1+(Number(r.chute)||0)/100);
+    cur.data.materiel.push({id:uid(),nom:r.nom,qte:+total.toFixed(2),unite:r.unite||'',fournisseur:'',ok:false});
+  });
+  renderMat();markDirty();toast(rows.length+' articles ajoutés','ok');
+}
+
+/* ============================================================
+   NOTES (collecte avant save)
+   ============================================================ */
+function collectNotes(){
+  if(!cur)return;
+  cur.data.notes={
+    metre:$('note-metre').value,calcul:$('note-calcul').value,
+    materiel:$('note-materiel').value,libre:$('note-libre').value,
+    client:$('info-client').value,adresse:$('info-adresse').value,
+    tel:$('info-tel').value,date:$('info-date').value
+  };
+}
+
+/* ============================================================
+   SAUVEGARDE
+   ============================================================ */
+async function saveNow(){
+  if(!cur)return;
+  collectNotes();
+  cur.updated_at=new Date().toISOString();
+  dirty=false;$('fabSave').style.display='none';
+  // local toujours
+  const idx=chantiers.findIndex(c=>c.id===cur.id);
+  if(idx>=0)chantiers[idx]=cur;saveLocal();
+  if(sb){
+    try{
+      const{error}=await sb.from('chantiers').update({nom:cur.nom,data:cur.data,updated_at:cur.updated_at}).eq('id',cur.id);
+      if(error)throw error;
+      toast('Enregistré ☁️','ok');setSync(true);
+    }catch(e){console.error(e);toast('Sauvé en local','err');setSync(false)}
+  }else{toast('Enregistré (local)','ok')}
+}
+function forceSync(){saveNow()}
+function setSync(on){const s=$('sync');if(on){s.classList.remove('off');$('syncTxt').textContent='Sync ✓'}else{s.classList.add('off');$('syncTxt').textContent='Local'}}
+
+/* ============================================================
+   REALTIME
+   ============================================================ */
+function setupRealtime(){
+  if(!sb)return;
+  try{
+    sb.channel('ct_'+userId).on('postgres_changes',{event:'*',schema:'public',table:'chantiers',filter:`user_id=eq.${userId}`},payload=>{
+      if(dirty)return; // ne pas écraser saisie en cours
+      if(payload.eventType==='UPDATE'&&cur&&payload.new.id===cur.id){
+        cur.data=payload.new.data;cur.nom=payload.new.nom;
+        const idx=chantiers.findIndex(c=>c.id===cur.id);if(idx>=0)chantiers[idx]=cur;
+        renderAll();toast('Mis à jour depuis un autre appareil','ok');
+      }
+    }).subscribe();
+  }catch(e){console.warn(e)}
+}
+
+/* save avant fermeture */
+window.addEventListener('beforeunload',e=>{if(dirty){collectNotes();saveLocal()}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&dirty)saveNow()});
+window.addEventListener('online',()=>setSync(true));
+window.addEventListener('offline',()=>setSync(false));
+
+/* service worker */
+if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js').catch(()=>{})}
+
+init();
+</script>
+</body>
+</html>

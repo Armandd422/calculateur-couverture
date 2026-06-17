@@ -1,64 +1,23 @@
 {
-  "name": "Calculateur Couverture Couvr'Toit",
-  "short_name": "Calc Toiture",
-  "description": "Gestion complète des quantitatifs de toiture sur site et au bureau",
+  "name": "Couvr'Toit · Métré & Quantitatifs",
+  "short_name": "Couvr'Toit Métré",
+  "description": "Métré sur chantier et quantitatifs de couverture - Entreprise Couvr'Toit",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#ffffff",
-  "theme_color": "#E63946",
-  "categories": ["business", "productivity"],
-  "screenshots": [
-    {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192'/><path d='M96 40 L140 100 L150 100 L150 160 L42 160 L42 100 L52 100 Z' fill='white'/><rect x='60' y='115' width='20' height='30' fill='%23E63946'/><rect x='112' y='115' width='20' height='30' fill='%23E63946'/></svg>",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23E63946' width='512' height='512'/><path d='M256 100 L360 280 L400 280 L400 420 L112 420 L112 280 L152 280 Z' fill='white'/><rect x='160' y='310' width='60' height='90' fill='%23E63946'/><rect x='292' y='310' width='60' height='90' fill='%23E63946'/></svg>",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    }
-  ],
+  "background_color": "#1A1A1A",
+  "theme_color": "#E2231A",
+  "categories": ["business", "productivity", "utilities"],
   "icons": [
-    {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192' rx='45'/><path d='M96 40 L140 100 L150 100 L150 160 L42 160 L42 100 L52 100 Z' fill='white'/><rect x='60' y='115' width='20' height='30' fill='%23E63946'/><rect x='112' y='115' width='20' height='30' fill='%23E63946'/></svg>",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23E63946' width='512' height='512' rx='110'/><path d='M256 100 L360 280 L400 280 L400 420 L112 420 L112 280 L152 280 Z' fill='white'/><rect x='160' y='310' width='60' height='90' fill='%23E63946'/><rect x='112' y='115' width='20' height='30' fill='%23E63946'/></svg>",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
   ],
   "shortcuts": [
-    {
-      "name": "Brouillon",
-      "short_name": "Brouillon",
-      "description": "Accès rapide aux notes de chantier",
-      "url": "./index.html?page=brouillon",
-      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192'/><text x='50%' y='50%' font-size='60' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'>📝</text></svg>", "sizes": "192x192", "type": "image/svg+xml"}]
-    },
-    {
-      "name": "Calcul Avancé",
-      "short_name": "Calcul",
-      "description": "Accès rapide aux calculs de quantitatifs",
-      "url": "./index.html?page=calcul",
-      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192'/><text x='50%' y='50%' font-size='60' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'>🔢</text></svg>", "sizes": "192x192", "type": "image/svg+xml"}]
-    },
-    {
-      "name": "Matériel",
-      "short_name": "Matériel",
-      "description": "Commande de matériel",
-      "url": "./index.html?page=materiel",
-      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E63946' width='192' height='192'/><text x='50%' y='50%' font-size='60' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'>📦</text></svg>", "sizes": "192x192", "type": "image/svg+xml"}]
-    }
+    {"name": "Métré", "url": "./index.html?tab=metre", "icons": [{"src": "icon-192.png", "sizes": "192x192"}]},
+    {"name": "Calcul", "url": "./index.html?tab=calcul", "icons": [{"src": "icon-192.png", "sizes": "192x192"}]}
   ],
   "prefer_related_applications": false
 }

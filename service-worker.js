@@ -1,109 +1,25 @@
-const CACHE_NAME = 'calculateur-couverture-v1';
-const urlsToCache = [
-  './',
-  './index.html',
-  './manifest.json'
-];
+// Couvr'Toit Métré - Service Worker v2
+const CACHE='couvrtoit-v2';
+const ASSETS=['./','./index.html','./manifest.json','./logo.png','./icon-192.png','./icon-512.png'];
 
-// Installation du service worker
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
-      .catch(err => console.log('Erreur cache:', err))
-  );
+self.addEventListener('install',e=>{
+  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).catch(()=>{}));
   self.skipWaiting();
 });
-
-// Activation du service worker
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
+self.addEventListener('activate',e=>{
+  e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
   self.clients.claim();
 });
-
-// Stratégie: Network first, fallback to cache
-self.addEventListener('fetch', event => {
-  // Ne mettre en cache que les GET
-  if (event.request.method !== 'GET') {
-    return;
+self.addEventListener('fetch',e=>{
+  const url=e.request.url;
+  // Ne jamais mettre en cache les appels Supabase (toujours réseau)
+  if(url.includes('supabase.co')||url.includes('supabase.in')){
+    return; // laisse passer au réseau normalement
   }
-
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Cache la réponse pour usage offline
-        if (response.status === 200) {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // Retourne la version en cache si offline
-        return caches.match(event.request)
-          .then(response => {
-            return response || new Response('Hors ligne - données mises en cache disponibles', {
-              status: 503,
-              statusText: 'Service Unavailable',
-              headers: new Headers({
-                'Content-Type': 'text/plain'
-              })
-            });
-          });
-      })
-  );
-});
-
-// Synchronisation en arrière-plan (quand reconnecté)
-self.addEventListener('sync', event => {
-  if (event.tag === 'sync-data') {
-    event.waitUntil(syncData());
-  }
-});
-
-async function syncData() {
-  try {
-    const db = await openDatabase();
-    const unsyncedData = await getAllUnsyncedData(db);
-    
-    if (unsyncedData.length > 0) {
-      // Envoyer données au serveur si connecté
-      for (const data of unsyncedData) {
-        // Vous pouvez ajouter une sync serveur ici plus tard
-        markAsSynced(db, data.id);
-      }
-      
-      // Notifier les clients que la sync est terminée
-      const clients = await self.clients.matchAll();
-      clients.forEach(client => {
-        client.postMessage({
-          type: 'SYNC_COMPLETE',
-          message: 'Données synchronisées'
-        });
-      });
-    }
-  } catch (error) {
-    console.error('Erreur synchronisation:', error);
-  }
-}
-
-// Notification quand online
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
+  // Network-first pour le HTML, cache-first pour le reste
+  if(e.request.mode==='navigate'||url.endsWith('.html')){
+    e.respondWith(fetch(e.request).then(r=>{const cl=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cl));return r}).catch(()=>caches.match(e.request).then(r=>r||caches.match('./index.html'))));
+  }else{
+    e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(resp=>{const cl=resp.clone();caches.open(CACHE).then(c=>c.put(e.request,cl));return resp})).catch(()=>{}));
   }
 });
