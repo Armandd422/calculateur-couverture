@@ -904,7 +904,9 @@ function renderCalc(){
   const tb=$('calcBody');tb.innerHTML='';
   if(!cur.data.calcul.length){
     tb.innerHTML='<tr><td colspan="4"><div class="empty" style="padding:30px 10px"><span class="em">🧮</span><div class="t">Tableau vide</div><div class="s">Importez votre métré ou ajoutez des lignes. Tapez les quantités comme dans Excel : <b>3*5+2-1</b>. Entrée = ligne suivante.</div></div></td></tr>';
-    $('calcCount').textContent='0';return;
+    $('calcCount').textContent='0';
+    const rc=$('calcRecap');if(rc)rc.innerHTML='';
+    return;
   }
   cur.data.calcul.forEach(r=>{
     if(r.type==='cat'){
@@ -931,29 +933,40 @@ function renderCalc(){
 }
 function renderCalcRecap(){
   const box=$('calcRecap');if(!box)return;
-  // regrouper par nom EXACT (insensible casse/espaces) + même unité
-  const map={};
+  box.innerHTML='';
+  if(!cur||!cur.data||!cur.data.calcul||!cur.data.calcul.length)return;
+  // Regrouper par nom de catégorie (les catégories de MÊME nom fusionnent),
+  // puis par ouvrage (même nom + même unité) dans la catégorie.
+  const cats={};        // clé = nom catégorie en minuscules
+  const ordreCats=[];   // pour garder l'ordre d'apparition
+  let courantKey=null;
   cur.data.calcul.forEach(r=>{
-    if(r.type!=='row')return;
-    const nom=(r.nom||'').trim();
-    if(!nom)return;
-    const val=evalFormule(r.qte);
-    if(!val||!isFinite(val))return;
-    const key=nom.toLowerCase()+'|'+(r.unite||'').toLowerCase();
-    if(!map[key]){map[key]={nom,unite:r.unite||'',total:0,count:0}}
-    map[key].total+=val;map[key].count++;
+    if(r.type==='cat'){
+      const nom=(r.nom||'Sans catégorie').trim()||'Sans catégorie';
+      courantKey=nom.toLowerCase();
+      if(!cats[courantKey]){cats[courantKey]={nom,ouvrages:{}};ordreCats.push(courantKey);}
+    }else if(r.type==='row'){
+      const nom=(r.nom||'').trim();
+      const val=evalFormule(r.qte);
+      if(!nom||!val||!isFinite(val))return;
+      if(courantKey===null){courantKey='sans catégorie';if(!cats[courantKey]){cats[courantKey]={nom:'Sans catégorie',ouvrages:{}};ordreCats.push(courantKey);}}
+      const key=nom.toLowerCase()+'|'+(r.unite||'').toLowerCase();
+      const g=cats[courantKey];
+      if(!g.ouvrages[key]){g.ouvrages[key]={nom,unite:r.unite||'',total:0,count:0}}
+      g.ouvrages[key].total+=val;g.ouvrages[key].count++;
+    }
   });
-  // ne garder que les ouvrages présents au moins 2 fois (vrais cumuls) OU tout afficher ? 
-  // -> on affiche tout ce qui a une valeur, mais on signale les regroupements
-  const items=Object.values(map).filter(m=>m.total>0);
-  if(!items.length){box.innerHTML='';return}
-  items.sort((a,b)=>b.total-a.total);
-  let html='<div class="recap-card"><div class="rc-head"><span>📊</span>Totaux par ouvrage</div>';
-  items.forEach(m=>{
-    const multi=m.count>1?`<span class="rc">(${m.count} postes cumulés)</span>`:'';
-    html+=`<div class="recap-row"><span class="rn">${escapeHtml(m.nom)}${multi}</span><span class="rv">${fmt(m.total)}<span class="ru">${escapeHtml(m.unite)}</span></span></div>`;
+  const groupesValides=ordreCats.map(k=>cats[k]).filter(g=>Object.keys(g.ouvrages).length>0);
+  if(!groupesValides.length)return;
+  let html='';
+  groupesValides.forEach(g=>{
+    html+=`<div class="recap-card"><div class="rc-head"><span>📊</span>${escapeHtml(g.nom)}</div>`;
+    Object.values(g.ouvrages).sort((a,b)=>b.total-a.total).forEach(m=>{
+      const multi=m.count>1?`<span class="rc">(${m.count} cumulés)</span>`:'';
+      html+=`<div class="recap-row"><span class="rn">${escapeHtml(m.nom)}${multi}</span><span class="rv">${fmt(m.total)}<span class="ru">${escapeHtml(m.unite)}</span></span></div>`;
+    });
+    html+='</div>';
   });
-  html+='</div>';
   box.innerHTML=html;
 }
 function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -961,6 +974,7 @@ function calcShowTotal(inp){
   const span=inp.parentElement.querySelector('.c-res');
   const v=evalFormule(inp.value);
   span.textContent=(v&&isFinite(v))?('= '+fmt(v)):'';
+  clearTimeout(window._recapT);window._recapT=setTimeout(renderCalcRecap,400);
 }
 function calcKey(e,id,col){
   if(e.key==='Enter'){
@@ -993,6 +1007,7 @@ function calcEdit(id,field,val){
   const r=cur.data.calcul.find(x=>x.id===id);if(!r)return;
   r[field]=val;markDirty();
   if(field==='qte')updateMeta();
+  if(field==='nom'||field==='unite'){clearTimeout(window._recapT);window._recapT=setTimeout(renderCalcRecap,400);}
 }
 function calcDel(id){cur.data.calcul=cur.data.calcul.filter(r=>r.id!==id);renderCalc();markDirty()}
 function addCalcRow(){const r={id:uid(),type:'row',nom:'',unite:'ml',qte:''};cur.data.calcul.push(r);renderCalc();markDirty();focusCalc(r.id,0)}
