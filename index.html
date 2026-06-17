@@ -958,7 +958,17 @@ function renderCalcRecap(){
   });
   const groupesValides=ordreCats.map(k=>cats[k]).filter(g=>Object.keys(g.ouvrages).length>0);
   if(!groupesValides.length)return;
+  // Total général : cumul de tous les ouvrages de même nom+unité, toutes catégories confondues
+  const general={};
+  groupesValides.forEach(g=>{
+    Object.values(g.ouvrages).forEach(o=>{
+      const k=o.nom.toLowerCase()+'|'+o.unite.toLowerCase();
+      if(!general[k])general[k]={nom:o.nom,unite:o.unite,total:0,count:0};
+      general[k].total+=o.total;general[k].count+=o.count;
+    });
+  });
   let html='';
+  // Un bloc par catégorie
   groupesValides.forEach(g=>{
     html+=`<div class="recap-card"><div class="rc-head"><span>📊</span>${escapeHtml(g.nom)}</div>`;
     Object.values(g.ouvrages).sort((a,b)=>b.total-a.total).forEach(m=>{
@@ -967,6 +977,17 @@ function renderCalcRecap(){
     });
     html+='</div>';
   });
+  // Bloc total général (seulement s'il y a au moins un ouvrage cumulé sur plusieurs postes, sinon inutile)
+  const generalItems=Object.values(general);
+  const yaCumul=generalItems.some(m=>m.count>1);
+  if(yaCumul){
+    html+=`<div class="recap-card" style="border:2px solid var(--rouge)"><div class="rc-head" style="background:var(--rouge)"><span>🧮</span>TOTAL GÉNÉRAL (cumul ouvrages identiques)</div>`;
+    generalItems.sort((a,b)=>b.total-a.total).forEach(m=>{
+      const multi=m.count>1?`<span class="rc">(${m.count} postes)</span>`:'';
+      html+=`<div class="recap-row"><span class="rn">${escapeHtml(m.nom)}${multi}</span><span class="rv">${fmt(m.total)}<span class="ru">${escapeHtml(m.unite)}</span></span></div>`;
+    });
+    html+='</div>';
+  }
   box.innerHTML=html;
 }
 function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
