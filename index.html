@@ -294,7 +294,8 @@ td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-n
         <textarea id="note-calcul" placeholder="Ajustements, remarques devis, coefficients..." oninput="markDirty()"></textarea>
       </div>
       <div class="calc-toolbar">
-        <button class="btn btn-primary btn-sm" onclick="importMetre()">📥 Importer le métré</button>
+        <button class="btn btn-primary btn-sm" onclick="openCalcType()">🏗️ Charger ouvrages</button>
+        <button class="btn btn-ghost btn-sm" onclick="importMetre()">📥 Importer le métré</button>
         <button class="btn btn-ghost btn-sm" onclick="addCalcRow()">➕ Ligne</button>
         <button class="btn btn-gris btn-sm" onclick="addCalcCat()">📁 Catégorie</button>
       </div>
@@ -362,6 +363,21 @@ td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-n
     <div class="modal-actions">
       <button class="btn btn-gris" onclick="closeModal('mCode')">Fermer</button>
       <button class="btn btn-primary" onclick="applyCode()">Appliquer ce code</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="mCalcType">
+  <div class="modal-box">
+    <h2>🏗️ Charger des ouvrages</h2>
+    <div class="sub">Choisissez le type de couverture : tous les ouvrages courants seront ajoutés au tableau, prêts à chiffrer.</div>
+    <div class="type-pick" id="calcTypePick"></div>
+    <label style="display:flex;align-items:center;gap:8px;margin:14px 0 4px;font-size:13px;color:var(--texte-doux);font-weight:600;text-transform:none;letter-spacing:0">
+      <input type="checkbox" id="calcAllOuv" style="width:18px;height:18px"> Inclure aussi les ouvrages secondaires (liste complète)
+    </label>
+    <div class="modal-actions">
+      <button class="btn btn-gris" onclick="closeModal('mCalcType')">Annuler</button>
+      <button class="btn btn-primary" onclick="loadCalcType()">Ajouter au tableau</button>
     </div>
   </div>
 </div>
@@ -958,6 +974,33 @@ function importMetre(){
   });
   if(!rows.length){toast('Aucune mesure saisie','err');return}
   cur.data.calcul=rows;renderCalc();markDirty();toast('Métré importé ✓','ok');
+}
+function openCalcType(){
+  const box=$('calcTypePick');box.innerHTML='';
+  Object.entries(TYPES).forEach(([k,v])=>{
+    const d=document.createElement('div');d.className='type-opt';d.dataset.type=k;
+    d.innerHTML=`<span class="em">${v.em}</span>${v.nom}`;
+    d.onclick=()=>{box.querySelectorAll('.type-opt').forEach(x=>x.classList.remove('sel'));d.classList.add('sel')};
+    box.appendChild(d);
+  });
+  $('calcAllOuv').checked=false;
+  openModal('mCalcType');
+}
+function loadCalcType(){
+  const sel=$('calcTypePick').querySelector('.type-opt.sel');
+  if(!sel){toast('Choisissez un type','err');return}
+  const type=sel.dataset.type;
+  const all=$('calcAllOuv').checked;
+  const tp=TYPES[type];
+  // catégorie + ouvrages
+  cur.data.calcul.push({id:uid(),type:'cat',nom:tp.nom});
+  const list=all?CATALOGUE[type]:CATALOGUE[type].filter(o=>o.def);
+  list.forEach(o=>{
+    cur.data.calcul.push({id:uid(),type:'row',nom:o.n,unite:o.u,qte:''});
+  });
+  closeModal('mCalcType');
+  renderCalc();markDirty();
+  toast(list.length+' ouvrages ajoutés','ok');
 }
 
 /* ============================================================
