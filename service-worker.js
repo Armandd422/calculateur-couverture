@@ -1,5 +1,5 @@
 // Couvr'Toit Métré - Service Worker v2
-const CACHE='couvrtoit-v3';
+const CACHE='couvrtoit-v4';
 const ASSETS=['./','./index.html','./manifest.json','./logo.png','./icon-192.png','./icon-512.png'];
 
 self.addEventListener('install',e=>{
