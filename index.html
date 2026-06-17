@@ -404,6 +404,17 @@ td.calc-total{text-align:right;font-weight:800;color:var(--rouge);font-variant-n
   </div>
 </div>
 
+<div class="modal" id="mDelChantier">
+  <div class="modal-box">
+    <h2>🗑️ Supprimer le chantier</h2>
+    <div class="sub">Voulez-vous vraiment supprimer <b id="delChName">ce chantier</b> et tout son contenu ? Cette action est définitive.</div>
+    <div class="modal-actions">
+      <button class="btn btn-gris" onclick="closeModal('mDelChantier');openChantiers()">Annuler</button>
+      <button class="btn btn-primary" style="background:#DC2626" onclick="confirmDeleteChantier()">Supprimer</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="mNewChantier">
   <div class="modal-box">
     <h2>➕ Nouveau chantier</h2>
@@ -735,12 +746,39 @@ function openChantiers(){
     const nt=ch.data?.toitures?.length||0;
     const d=document.createElement('div');
     d.className='ch-item'+(cur&&cur.id===ch.id?' active':'');
-    d.innerHTML=`<div class="ci-ic">🏠</div><div class="ci-info"><div class="ci-nom"></div><div class="ci-meta">${nt} toiture${nt>1?'s':''}</div></div><div class="ci-del" onclick="event.stopPropagation();delChantier('${ch.id}')">🗑️</div>`;
-    d.querySelector('.ci-nom').textContent=ch.nom;
-    d.onclick=()=>selectChantier(ch);
+    const info=document.createElement('div');info.className='ci-ic';info.textContent='🏠';
+    const cont=document.createElement('div');cont.className='ci-info';
+    const nom=document.createElement('div');nom.className='ci-nom';nom.textContent=ch.nom;
+    const meta=document.createElement('div');meta.className='ci-meta';meta.textContent=`${nt} toiture${nt>1?'s':''}`;
+    cont.appendChild(nom);cont.appendChild(meta);
+    const del=document.createElement('button');del.className='ci-del';del.textContent='🗑️';del.type='button';
+    del.addEventListener('click',ev=>{ev.stopPropagation();askDeleteChantier(ch.id,ch.nom);});
+    d.appendChild(info);d.appendChild(cont);d.appendChild(del);
+    d.addEventListener('click',()=>selectChantier(ch));
     list.appendChild(d);
   });
   openModal('mChantiers');
+}
+let _delId=null;
+function askDeleteChantier(id,nom){
+  _delId=id;
+  $('delChName').textContent=nom||'ce chantier';
+  closeModal('mChantiers');
+  openModal('mDelChantier');
+}
+async function confirmDeleteChantier(){
+  const id=_delId;_delId=null;
+  closeModal('mDelChantier');
+  if(!id)return;
+  // supprimer du cloud si possible
+  if(sb&&navigator.onLine){try{const{error}=await sb.from('chantiers').delete().eq('id',id);if(error)throw error;}catch(e){console.warn('suppr cloud KO',e)}}
+  // supprimer en local dans tous les cas
+  chantiers=chantiers.filter(c=>c.id!==id);
+  saveLocal();
+  if(cur&&cur.id===id){cur=null;curToit=null;}
+  if(chantiers.length){if(!cur)selectChantier(chantiers[0]);else openChantiers();}
+  else{showNoChantier();}
+  toast('Chantier supprimé','ok');
 }
 function openNewChantier(){closeModal('mChantiers');$('newChNom').value='';$('newChClient').value='';openModal('mNewChantier');setTimeout(()=>$('newChNom').focus(),200)}
 async function createChantier(){
@@ -760,15 +798,6 @@ async function createChantier(){
   obj.id=uid();obj.updated_at=new Date().toISOString();
   chantiers.unshift(obj);saveLocal();selectChantier(obj);toast('Chantier créé (local)','ok');
 }
-async function delChantier(id){
-  if(!confirm('Supprimer ce chantier et tout son contenu ?'))return;
-  if(sb){try{await sb.from('chantiers').delete().eq('id',id)}catch(e){console.error(e)}}
-  chantiers=chantiers.filter(c=>c.id!==id);saveLocal();
-  if(cur&&cur.id===id){if(chantiers.length)selectChantier(chantiers[0]);else{showNoChantier();closeModal('mChantiers');}}
-  else openChantiers();
-  toast('Chantier supprimé');
-}
-
 /* ============================================================
    MÉTRÉ — TOITURES
    ============================================================ */
