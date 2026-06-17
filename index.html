@@ -573,7 +573,17 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function toast(msg,type=''){const t=$('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',2200)}
 function openModal(id){$(id).classList.add('show')}
 function closeModal(id){$(id).classList.remove('show')}
-function markDirty(){dirty=true;$('fabSave').style.display='flex';scheduleSave()}
+function markDirty(){
+  dirty=true;$('fabSave').style.display='flex';
+  if(cur){
+    cur.updated_at=new Date().toISOString();
+    try{collectNotes();}catch(e){}
+    const idx=chantiers.findIndex(c=>c.id===cur.id);
+    if(idx>=0)chantiers[idx]=cur;
+    saveLocal();
+  }
+  scheduleSave();
+}
 function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveNow,2500)}
 
 /* ---------- STRUCTURE CHANTIER ----------
@@ -1194,12 +1204,20 @@ function setSync(on){const s=$('sync');if(on){s.classList.remove('off');$('syncT
 function setupRealtime(){
   if(!sb)return;
   try{
-    sb.channel('ct_'+userId.replace(/[^a-z0-9]/g,'_')).on('postgres_changes',{event:'*',schema:'public',table:'chantiers',filter:`user_id=eq.${userId}`},payload=>{
-      if(dirty)return; // ne pas écraser saisie en cours
+    if(window._rtChan){try{sb.removeChannel(window._rtChan)}catch(e){}}
+    window._rtChan=sb.channel('ct_'+userId.replace(/[^a-z0-9]/g,'_')).on('postgres_changes',{event:'*',schema:'public',table:'chantiers',filter:`user_id=eq.${userId}`},payload=>{
+      if(dirty)return; // saisie en cours : ne rien toucher
       if(payload.eventType==='UPDATE'&&cur&&payload.new.id===cur.id){
-        cur.data=payload.new.data;cur.nom=payload.new.nom;
+        // n'appliquer QUE si la version reçue est plus récente que la nôtre
+        const tNew=new Date(payload.new.updated_at||0).getTime();
+        const tCur=new Date(cur.updated_at||0).getTime();
+        if(tNew<=tCur)return; // notre version est égale ou plus récente -> on garde
+        cur.data=payload.new.data;cur.nom=payload.new.nom;cur.updated_at=payload.new.updated_at;
         const idx=chantiers.findIndex(c=>c.id===cur.id);if(idx>=0)chantiers[idx]=cur;
-        renderAll();toast('Mis à jour depuis un autre appareil','ok');
+        saveLocal();renderAll();toast('Mis à jour depuis un autre appareil','ok');
+      }else if(payload.eventType==='INSERT'){
+        // nouveau chantier d'un autre appareil
+        if(!chantiers.find(c=>c.id===payload.new.id)){chantiers.unshift(payload.new);saveLocal();}
       }
     }).subscribe();
   }catch(e){console.warn(e)}
