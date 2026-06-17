@@ -591,23 +591,38 @@ function blankData(){return{toitures:[],surfaces:[],calcul:[],materiel:[],notes:
    ============================================================ */
 async function init(){
   renderTypePick();
-  if(!sb){toast('Mode hors-ligne','err');loadLocal();return}
+  // 1) Afficher IMMÉDIATEMENT les données locales (marche même 100% hors-ligne)
+  loadLocal();
+  // 2) Si pas de réseau ou pas de client, on reste en local
+  if(!sb||!navigator.onLine){setSync(false);return}
+  // 3) Tenter de récupérer le cloud en arrière-plan (sans bloquer l'affichage)
   try{
     const{data,error}=await sb.from('chantiers').select('*').eq('user_id',userId).order('updated_at',{ascending:false});
     if(error)throw error;
-    chantiers=data||[];
-    if(chantiers.length){selectChantier(chantiers[0]);}
-    else{showNoChantier();}
+    const cloud=data||[];
+    // fusion simple : le cloud fait référence s'il existe, sinon on garde le local
+    if(cloud.length){
+      chantiers=cloud;
+      saveLocal();
+      // garder le chantier courant ouvert s'il existe encore
+      const keep=cur?cloud.find(c=>c.id===cur.id):null;
+      if(keep)selectChantier(keep);
+      else selectChantier(cloud[0]);
+    }else if(!chantiers.length){
+      showNoChantier();
+    }
     setupRealtime();
     setSync(true);
-  }catch(e){console.error(e);toast('Connexion limitée','err');loadLocal();}
+  }catch(e){console.warn('Cloud injoignable, mode local',e);setSync(false);}
 }
 function loadLocal(){
-  const raw=localStorage.getItem('ct_chantiers');
-  chantiers=raw?JSON.parse(raw):[];
+  try{
+    const raw=localStorage.getItem('ct_chantiers');
+    chantiers=raw?JSON.parse(raw):[];
+  }catch(e){chantiers=[]}
   if(chantiers.length)selectChantier(chantiers[0]);else showNoChantier();
 }
-function saveLocal(){localStorage.setItem('ct_chantiers',JSON.stringify(chantiers))}
+function saveLocal(){try{localStorage.setItem('ct_chantiers',JSON.stringify(chantiers))}catch(e){}}
 
 function showNoChantier(){
   cur=null;
@@ -694,11 +709,11 @@ async function createChantier(){
   data.notes.client=$('newChClient').value.trim();
   const obj={user_id:userId,nom,data};
   closeModal('mNewChantier');
-  if(sb){
+  if(sb&&navigator.onLine){
     try{
       const{data:ins,error}=await sb.from('chantiers').insert([obj]).select();
       if(error)throw error;
-      chantiers.unshift(ins[0]);selectChantier(ins[0]);toast('Chantier créé','ok');return;
+      chantiers.unshift(ins[0]);saveLocal();selectChantier(ins[0]);toast('Chantier créé','ok');return;
     }catch(e){console.error(e)}
   }
   obj.id=uid();obj.updated_at=new Date().toISOString();
@@ -1136,13 +1151,13 @@ async function saveNow(){
   // local toujours
   const idx=chantiers.findIndex(c=>c.id===cur.id);
   if(idx>=0)chantiers[idx]=cur;saveLocal();
-  if(sb){
+  if(sb&&navigator.onLine){
     try{
       const{error}=await sb.from('chantiers').update({nom:cur.nom,data:cur.data,updated_at:cur.updated_at}).eq('id',cur.id);
       if(error)throw error;
       toast('Enregistré ☁️','ok');setSync(true);
     }catch(e){console.error(e);toast('Sauvé en local','err');setSync(false)}
-  }else{toast('Enregistré (local)','ok')}
+  }else{toast('Enregistré (local)','ok');setSync(false)}
 }
 function forceSync(){saveNow()}
 function setSync(on){const s=$('sync');if(on){s.classList.remove('off');$('syncTxt').textContent='Sync ✓'}else{s.classList.add('off');$('syncTxt').textContent='Local'}}
@@ -1174,8 +1189,19 @@ document.addEventListener('visibilitychange',()=>{
   }
 });
 window.addEventListener('pageshow',()=>{if(cur){try{renderAll();goTab(activeTab)}catch(e){}}});
-window.addEventListener('online',()=>setSync(true));
-window.addEventListener('offline',()=>setSync(false));
+window.addEventListener('online',async()=>{
+  setSync(true);
+  toast('Connexion rétablie — synchronisation…','ok');
+  // renvoyer le travail local vers le cloud
+  if(cur&&sb){try{await saveNow();}catch(e){}}
+  // re-télécharger les éventuelles modifs des autres appareils
+  if(sb){try{
+    const{data}=await sb.from('chantiers').select('*').eq('user_id',userId).order('updated_at',{ascending:false});
+    if(data){chantiers=data;saveLocal();const keep=cur?data.find(c=>c.id===cur.id):null;if(keep)selectChantier(keep);else if(data.length)selectChantier(data[0]);}
+    setupRealtime();
+  }catch(e){}}
+});
+window.addEventListener('offline',()=>{setSync(false);toast('Hors-ligne — sauvegarde locale active','err')});
 
 /* ============================================================
    CODE DE CONNEXION (synchro multi-appareils)
